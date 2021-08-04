@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/pau1o-hs/Documents/Learned Motion Matching/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -isystem /home/pau1o-hs/Documents/libtorch/include -isystem /home/pau1o-hs/Documents/libtorch/include/torch/csrc/api/include -isystem /usr/local/cuda/include   -D_GLIBCXX_USE_CXX11_ABI=1 -O3 -DNDEBUG   -D_GLIBCXX_USE_CXX11_ABI=1 -std=gnu++14 -o CMakeFiles/Projector.dir/Projector.cpp.o -c \"/home/pau1o-hs/Documents/Learned Motion Matching/Projector.cpp\"",
+  "file": "/home/pau1o-hs/Documents/Learned Motion Matching/Projector.cpp"
+},
+{
+  "directory": "/home/pau1o-hs/Documents/Learned Motion Matching/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -isystem /home/pau1o-hs/Documents/libtorch/include -isystem /home/pau1o-hs/Documents/libtorch/include/torch/csrc/api/include -isystem /usr/local/cuda/include   -D_GLIBCXX_USE_CXX11_ABI=1 -O3 -DNDEBUG   -D_GLIBCXX_USE_CXX11_ABI=1 -std=gnu++14 -o CMakeFiles/Projector.dir/CustomLib.cpp.o -c \"/home/pau1o-hs/Documents/Learned Motion Matching/CustomLib.cpp\"",
+  "file": "/home/pau1o-hs/Documents/Learned Motion Matching/CustomLib.cpp"
+}
+]

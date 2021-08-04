@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="(empty)"
+	BuildStamp="20210707-0941-Experimental"
+	Name="(empty)"
+	Generator="ctest-3.16.3"
+	CompilerName=""
+	CompilerVersion=""
+	OSName="Linux"
+	Hostname="Lenovo-Legion"
+	OSRelease="5.8.0-59-generic"
+	OSVersion="#66~20.04.1-Ubuntu SMP Thu Jun 17 11:14:10 UTC 2021"
+	OSPlatform="x86_64"
+	Is64Bits="1"
+	VendorString="GenuineIntel"
+	VendorID="Intel Corporation"
+	FamilyID="6"
+	ModelID="165"
+	ProcessorCacheSize="12288"
+	NumberOfLogicalCPU="12"
+	NumberOfPhysicalCPU="6"
+	TotalVirtualMemory="2047"
+	TotalPhysicalMemory="15919"
+	LogicalProcessorsPerPhysical="2"
+	ProcessorClockFrequency="1144.75"
+	>
+	<Testing>
+		<StartDateTime>Jul 07 06:41 -03</StartDateTime>
+		<StartTestTime>1625650900</StartTestTime>
+		<TestList/>
+		<EndDateTime>Jul 07 06:41 -03</EndDateTime>
+		<EndTestTime>1625650900</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>
