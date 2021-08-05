@@ -3,6 +3,8 @@
 
 CMakeFiles/Compressor.dir/Compressor.cpp.o: ../Compressor.cpp
 CMakeFiles/Compressor.dir/Compressor.cpp.o: ../CustomLib.hpp
+CMakeFiles/Compressor.dir/Compressor.cpp.o: ../tensorboard_logger-master/include/crc.h
+CMakeFiles/Compressor.dir/Compressor.cpp.o: ../tensorboard_logger-master/include/tensorboard_logger.h
 CMakeFiles/Compressor.dir/Compressor.cpp.o: /home/pau1o-hs/Documents/libtorch/include/ATen/ATen.h
 CMakeFiles/Compressor.dir/Compressor.cpp.o: /home/pau1o-hs/Documents/libtorch/include/ATen/CPUGeneratorImpl.h
 CMakeFiles/Compressor.dir/Compressor.cpp.o: /home/pau1o-hs/Documents/libtorch/include/ATen/Config.h
@@ -513,6 +515,12 @@ CMakeFiles/Compressor.dir/Compressor.cpp.o: /usr/local/cuda/include/thrust/type_
 CMakeFiles/Compressor.dir/Compressor.cpp.o: /usr/local/cuda/include/thrust/type_traits/void_t.h
 CMakeFiles/Compressor.dir/Compressor.cpp.o: /usr/local/cuda/include/thrust/version.h
 CMakeFiles/Compressor.dir/Compressor.cpp.o: /usr/local/cuda/include/vector_types.h
+CMakeFiles/Compressor.dir/Compressor.cpp.o: event.pb.h
+CMakeFiles/Compressor.dir/Compressor.cpp.o: resource_handle.pb.h
+CMakeFiles/Compressor.dir/Compressor.cpp.o: summary.pb.h
+CMakeFiles/Compressor.dir/Compressor.cpp.o: tensor.pb.h
+CMakeFiles/Compressor.dir/Compressor.cpp.o: tensor_shape.pb.h
+CMakeFiles/Compressor.dir/Compressor.cpp.o: types.pb.h
 
 CMakeFiles/Compressor.dir/CustomLib.cpp.o: ../CustomLib.cpp
 CMakeFiles/Compressor.dir/CustomLib.cpp.o: ../CustomLib.hpp

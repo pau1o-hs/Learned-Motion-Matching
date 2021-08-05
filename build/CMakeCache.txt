@@ -150,7 +150,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=Projector
+CMAKE_PROJECT_NAME:STATIC=Compressor
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/bin/ranlib
@@ -422,6 +422,30 @@ Projector_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/bui
 //Value Computed by CMake
 Projector_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
 
+//Path to a file.
+Protobuf_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a library.
+Protobuf_LIBRARY_DEBUG:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a
+
+//Path to a library.
+Protobuf_LIBRARY_RELEASE:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a
+
+//Path to a library.
+Protobuf_LITE_LIBRARY_DEBUG:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotobuf-lite.a
+
+//Path to a library.
+Protobuf_LITE_LIBRARY_RELEASE:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotobuf-lite.a
+
+//The Google Protocol Buffers Compiler
+Protobuf_PROTOC_EXECUTABLE:FILEPATH=/usr/bin/protoc
+
+//Path to a library.
+Protobuf_PROTOC_LIBRARY_DEBUG:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotoc.a
+
+//Path to a library.
+Protobuf_PROTOC_LIBRARY_RELEASE:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotoc.a
+
 //Value Computed by CMake
 Stepeer_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/build
 
@@ -625,8 +649,6 @@ CUDA_CUDART_LIBRARY-ADVANCED:INTERNAL=1
 CUDA_CUDA_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CUDA_GENERATED_OUTPUT_DIR
 CUDA_GENERATED_OUTPUT_DIR-ADVANCED:INTERNAL=1
-//Returned GPU architectures from detect_gpus tool
-CUDA_GPU_DETECT_OUTPUT:INTERNAL=7.5
 //ADVANCED property for variable: CUDA_HOST_COMPILATION_CPP
 CUDA_HOST_COMPILATION_CPP-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CUDA_NVCC_EXECUTABLE
@@ -720,12 +742,30 @@ CUDNN_ROOT-ADVANCED:INTERNAL=1
 FIND_PACKAGE_MESSAGE_DETAILS_CUDA:INTERNAL=[/usr/local/cuda][/usr/local/cuda/bin/nvcc][/usr/local/cuda/include][/usr/local/cuda/lib64/libcudart.so][v11.1()]
 //Details about finding CUDNN
 FIND_PACKAGE_MESSAGE_DETAILS_CUDNN:INTERNAL=[/usr/lib/x86_64-linux-gnu/libcudnn.so][/usr/include][v()]
+//Details about finding Protobuf
+FIND_PACKAGE_MESSAGE_DETAILS_Protobuf:INTERNAL=[/home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a;-lpthread][/usr/include][v3.6.1()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //Details about finding Torch
 FIND_PACKAGE_MESSAGE_DETAILS_Torch:INTERNAL=[/home/pau1o-hs/Documents/libtorch/lib/libtorch.so][/home/pau1o-hs/Documents/libtorch/include;/home/pau1o-hs/Documents/libtorch/include/torch/csrc/api/include][v()]
+//ADVANCED property for variable: Protobuf_INCLUDE_DIR
+Protobuf_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Protobuf_LIBRARY_DEBUG
+Protobuf_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Protobuf_LIBRARY_RELEASE
+Protobuf_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Protobuf_LITE_LIBRARY_DEBUG
+Protobuf_LITE_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Protobuf_LITE_LIBRARY_RELEASE
+Protobuf_LITE_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Protobuf_PROTOC_EXECUTABLE
+Protobuf_PROTOC_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Protobuf_PROTOC_LIBRARY_DEBUG
+Protobuf_PROTOC_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Protobuf_PROTOC_LIBRARY_RELEASE
+Protobuf_PROTOC_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //Result of TRY_COMPILE
 compile_result:INTERNAL=TRUE
 //Result of TRY_RUN
-run_result:INTERNAL=0
+run_result:INTERNAL=255
 

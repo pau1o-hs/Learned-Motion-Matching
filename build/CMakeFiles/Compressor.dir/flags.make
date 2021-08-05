@@ -6,5 +6,5 @@ CXX_FLAGS =  -D_GLIBCXX_USE_CXX11_ABI=1 -O3 -DNDEBUG   -D_GLIBCXX_USE_CXX11_ABI=
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -isystem /home/pau1o-hs/Documents/libtorch/include -isystem /home/pau1o-hs/Documents/libtorch/include/torch/csrc/api/include -isystem /usr/local/cuda/include 
+CXX_INCLUDES = -I"/home/pau1o-hs/Documents/Learned Motion Matching/include" -I"/home/pau1o-hs/Documents/Learned Motion Matching/build" -isystem /home/pau1o-hs/Documents/libtorch/include -isystem /home/pau1o-hs/Documents/libtorch/include/torch/csrc/api/include -isystem /usr/local/cuda/include 
 

@@ -4,20 +4,19 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/pau1o-hs/Documents/Learned Motion Matching/CustomLib.cpp" "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/test.dir/CustomLib.cpp.o"
-  "/home/pau1o-hs/Documents/Learned Motion Matching/test.cpp" "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/test.dir/test.cpp.o"
+  "/home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/tests/test_tensorboard_logger.cc" "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/home/pau1o-hs/Documents/libtorch/include"
-  "/home/pau1o-hs/Documents/libtorch/include/torch/csrc/api/include"
-  "/usr/local/cuda/include"
+  "../include"
+  "."
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
+  "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/tensorboard_logger.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

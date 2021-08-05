@@ -911,7 +911,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "Projector"
+			"value" : "Compressor"
 		},
 		{
 			"name" : "CMAKE_RANLIB",
@@ -1316,18 +1316,6 @@
 			],
 			"type" : "PATH",
 			"value" : ""
-		},
-		{
-			"name" : "CUDA_GPU_DETECT_OUTPUT",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Returned GPU architectures from detect_gpus tool"
-				}
-			],
-			"type" : "INTERNAL",
-			"value" : "7.5"
 		},
 		{
 			"name" : "CUDA_HOST_COMPILATION_CPP",
@@ -2206,6 +2194,18 @@
 			"value" : "[/usr/lib/x86_64-linux-gnu/libcudnn.so][/usr/include][v()]"
 		},
 		{
+			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_Protobuf",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Details about finding Protobuf"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "[/home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a;-lpthread][/usr/include][v3.6.1()]"
+		},
+		{
 			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_Threads",
 			"properties" : 
 			[
@@ -2312,6 +2312,134 @@
 			],
 			"type" : "STATIC",
 			"value" : "/home/pau1o-hs/Documents/Learned Motion Matching"
+		},
+		{
+			"name" : "Protobuf_INCLUDE_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "PATH",
+			"value" : "/usr/include"
+		},
+		{
+			"name" : "Protobuf_LIBRARY_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a"
+		},
+		{
+			"name" : "Protobuf_LIBRARY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a"
+		},
+		{
+			"name" : "Protobuf_LITE_LIBRARY_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/home/pau1o-hs/Documents/libtorch/lib/libprotobuf-lite.a"
+		},
+		{
+			"name" : "Protobuf_LITE_LIBRARY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/home/pau1o-hs/Documents/libtorch/lib/libprotobuf-lite.a"
+		},
+		{
+			"name" : "Protobuf_PROTOC_EXECUTABLE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "The Google Protocol Buffers Compiler"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/protoc"
+		},
+		{
+			"name" : "Protobuf_PROTOC_LIBRARY_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/home/pau1o-hs/Documents/libtorch/lib/libprotoc.a"
+		},
+		{
+			"name" : "Protobuf_PROTOC_LIBRARY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/home/pau1o-hs/Documents/libtorch/lib/libprotoc.a"
 		},
 		{
 			"name" : "Stepeer_BINARY_DIR",
@@ -2443,7 +2571,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "0"
+			"value" : "255"
 		},
 		{
 			"name" : "test_BINARY_DIR",

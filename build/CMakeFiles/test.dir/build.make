@@ -57,61 +57,32 @@ include CMakeFiles/test.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/test.dir/flags.make
 
-CMakeFiles/test.dir/test.cpp.o: CMakeFiles/test.dir/flags.make
-CMakeFiles/test.dir/test.cpp.o: ../test.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/test.dir/test.cpp.o"
-	/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/test.dir/test.cpp.o -c "/home/pau1o-hs/Documents/Learned Motion Matching/test.cpp"
+CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.o: CMakeFiles/test.dir/flags.make
+CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.o: ../tensorboard_logger-master/tests/test_tensorboard_logger.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.o"
+	/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.o -c "/home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/tests/test_tensorboard_logger.cc"
 
-CMakeFiles/test.dir/test.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/test.cpp.i"
-	/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/pau1o-hs/Documents/Learned Motion Matching/test.cpp" > CMakeFiles/test.dir/test.cpp.i
+CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.i"
+	/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/tests/test_tensorboard_logger.cc" > CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.i
 
-CMakeFiles/test.dir/test.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/test.cpp.s"
-	/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/pau1o-hs/Documents/Learned Motion Matching/test.cpp" -o CMakeFiles/test.dir/test.cpp.s
-
-CMakeFiles/test.dir/CustomLib.cpp.o: CMakeFiles/test.dir/flags.make
-CMakeFiles/test.dir/CustomLib.cpp.o: ../CustomLib.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/test.dir/CustomLib.cpp.o"
-	/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/test.dir/CustomLib.cpp.o -c "/home/pau1o-hs/Documents/Learned Motion Matching/CustomLib.cpp"
-
-CMakeFiles/test.dir/CustomLib.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/CustomLib.cpp.i"
-	/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/pau1o-hs/Documents/Learned Motion Matching/CustomLib.cpp" > CMakeFiles/test.dir/CustomLib.cpp.i
-
-CMakeFiles/test.dir/CustomLib.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/CustomLib.cpp.s"
-	/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/pau1o-hs/Documents/Learned Motion Matching/CustomLib.cpp" -o CMakeFiles/test.dir/CustomLib.cpp.s
+CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.s"
+	/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/tests/test_tensorboard_logger.cc" -o CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.s
 
 # Object files for target test
 test_OBJECTS = \
-"CMakeFiles/test.dir/test.cpp.o" \
-"CMakeFiles/test.dir/CustomLib.cpp.o"
+"CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.o"
 
 # External object files for target test
 test_EXTERNAL_OBJECTS =
 
-test: CMakeFiles/test.dir/test.cpp.o
-test: CMakeFiles/test.dir/CustomLib.cpp.o
+test: CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.o
 test: CMakeFiles/test.dir/build.make
-test: /home/pau1o-hs/Documents/libtorch/lib/libtorch.so
-test: /home/pau1o-hs/Documents/libtorch/lib/libc10.so
-test: /home/pau1o-hs/Documents/libtorch/lib/libkineto.a
-test: /usr/local/cuda/lib64/stubs/libcuda.so
-test: /usr/local/cuda/lib64/libnvrtc.so
-test: /usr/local/cuda/lib64/libnvToolsExt.so
-test: /usr/local/cuda/lib64/libcudart.so
-test: /home/pau1o-hs/Documents/libtorch/lib/libc10_cuda.so
-test: /home/pau1o-hs/Documents/libtorch/lib/libc10_cuda.so
-test: /home/pau1o-hs/Documents/libtorch/lib/libc10.so
-test: /usr/local/cuda/lib64/libcufft.so
-test: /usr/local/cuda/lib64/libcurand.so
-test: /usr/local/cuda/lib64/libcublas.so
-test: /usr/lib/x86_64-linux-gnu/libcudnn.so
-test: /usr/local/cuda/lib64/libnvToolsExt.so
-test: /usr/local/cuda/lib64/libcudart.so
+test: libtensorboard_logger.a
+test: /home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a
 test: CMakeFiles/test.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable test"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

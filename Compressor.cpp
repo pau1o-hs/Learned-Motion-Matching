@@ -1,4 +1,5 @@
 #include "CustomLib.hpp"
+#include "tensorboard_logger-master/include/tensorboard_logger.h"
 
 // C++ neural network model defined with value semantics
 struct Net : torch::nn::Module
@@ -78,9 +79,10 @@ int main()
     torch::optim::Adam optimizer(model.parameters(), 0.001);
 	torch::optim::StepLR scheduler(optimizer, 100, 0.99);
 
+    TensorBoardLogger logger("./demo/tfevents.pb");
     std::cout << "Training Compressor...\n";
 
-    for (size_t epoch = 1; epoch <= 50000; epoch++)
+    for (size_t epoch = 1; epoch <= 100; epoch++)
     {
         int batchId = 0;
         float epochLoss = 0;
@@ -117,6 +119,8 @@ int main()
             //     // torch::save(model, "Compressor.pt");
             // }
         }
+
+        logger.add_scalar("C++ Loss", epoch, epochLoss);
 
         if (epoch % 5000 == 0)
         {

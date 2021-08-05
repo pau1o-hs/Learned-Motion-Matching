@@ -53,7 +53,9 @@ CMAKE_BINARY_DIR = "/home/pau1o-hs/Documents/Learned Motion Matching/build"
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/Projector.dir/all
+all: CMakeFiles/test.dir/all
+all: CMakeFiles/Compressor.dir/all
+all: CMakeFiles/tensorboard_logger.dir/all
 
 .PHONY : all
 
@@ -63,36 +65,92 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/Projector.dir/clean
+clean: CMakeFiles/test.dir/clean
+clean: CMakeFiles/Compressor.dir/clean
+clean: CMakeFiles/tensorboard_logger.dir/clean
 
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/Projector.dir
+# Target rules for target CMakeFiles/test.dir
 
 # All Build rule for target.
-CMakeFiles/Projector.dir/all:
-	$(MAKE) -f CMakeFiles/Projector.dir/build.make CMakeFiles/Projector.dir/depend
-	$(MAKE) -f CMakeFiles/Projector.dir/build.make CMakeFiles/Projector.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" --progress-num=1,2,3 "Built target Projector"
-.PHONY : CMakeFiles/Projector.dir/all
+CMakeFiles/test.dir/all: CMakeFiles/tensorboard_logger.dir/all
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/depend
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" --progress-num=21,22 "Built target test"
+.PHONY : CMakeFiles/test.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/Projector.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" 3
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/Projector.dir/all
+CMakeFiles/test.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" 19
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" 0
-.PHONY : CMakeFiles/Projector.dir/rule
+.PHONY : CMakeFiles/test.dir/rule
 
 # Convenience name for target.
-Projector: CMakeFiles/Projector.dir/rule
+test: CMakeFiles/test.dir/rule
 
-.PHONY : Projector
+.PHONY : test
 
 # clean rule for target.
-CMakeFiles/Projector.dir/clean:
-	$(MAKE) -f CMakeFiles/Projector.dir/build.make CMakeFiles/Projector.dir/clean
-.PHONY : CMakeFiles/Projector.dir/clean
+CMakeFiles/test.dir/clean:
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/clean
+.PHONY : CMakeFiles/test.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/Compressor.dir
+
+# All Build rule for target.
+CMakeFiles/Compressor.dir/all:
+	$(MAKE) -f CMakeFiles/Compressor.dir/build.make CMakeFiles/Compressor.dir/depend
+	$(MAKE) -f CMakeFiles/Compressor.dir/build.make CMakeFiles/Compressor.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" --progress-num=1,2,3 "Built target Compressor"
+.PHONY : CMakeFiles/Compressor.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/Compressor.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" 3
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/Compressor.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" 0
+.PHONY : CMakeFiles/Compressor.dir/rule
+
+# Convenience name for target.
+Compressor: CMakeFiles/Compressor.dir/rule
+
+.PHONY : Compressor
+
+# clean rule for target.
+CMakeFiles/Compressor.dir/clean:
+	$(MAKE) -f CMakeFiles/Compressor.dir/build.make CMakeFiles/Compressor.dir/clean
+.PHONY : CMakeFiles/Compressor.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/tensorboard_logger.dir
+
+# All Build rule for target.
+CMakeFiles/tensorboard_logger.dir/all:
+	$(MAKE) -f CMakeFiles/tensorboard_logger.dir/build.make CMakeFiles/tensorboard_logger.dir/depend
+	$(MAKE) -f CMakeFiles/tensorboard_logger.dir/build.make CMakeFiles/tensorboard_logger.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" --progress-num=4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 "Built target tensorboard_logger"
+.PHONY : CMakeFiles/tensorboard_logger.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/tensorboard_logger.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" 17
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/tensorboard_logger.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" 0
+.PHONY : CMakeFiles/tensorboard_logger.dir/rule
+
+# Convenience name for target.
+tensorboard_logger: CMakeFiles/tensorboard_logger.dir/rule
+
+.PHONY : tensorboard_logger
+
+# clean rule for target.
+CMakeFiles/tensorboard_logger.dir/clean:
+	$(MAKE) -f CMakeFiles/tensorboard_logger.dir/build.make CMakeFiles/tensorboard_logger.dir/clean
+.PHONY : CMakeFiles/tensorboard_logger.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

@@ -1,0 +1,8 @@
+# Hashes of file build rules.
+ed91a8c601f441e7955373878f17b05b event.pb.h
+b7f00dc94053a8401eda721035f0ff19 projector_config.pb.h
+73a1b230a4dd56cb97eac55379964699 resource_handle.pb.h
+96e87bc61c04cb29af86db8925001649 summary.pb.h
+56862352da3e296841525d6d11fb30d9 tensor.pb.h
+5d781b28feb285c2ca35208ad992c5d4 tensor_shape.pb.h
+d8d341e741cb0ef83ff87347a0e13698 types.pb.h

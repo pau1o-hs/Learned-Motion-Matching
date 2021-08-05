@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/test.dir/CustomLib.cpp.o"
-  "CMakeFiles/test.dir/test.cpp.o"
+  "CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.o"
   "test"
   "test.pdb"
 )

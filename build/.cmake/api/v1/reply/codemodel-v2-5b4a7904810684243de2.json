@@ -14,7 +14,9 @@
 					"source" : ".",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1,
+						2
 					]
 				}
 			],
@@ -26,10 +28,12 @@
 					[
 						0
 					],
-					"name" : "Projector",
+					"name" : "Compressor",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1,
+						2
 					]
 				}
 			],
@@ -37,9 +41,23 @@
 			[
 				{
 					"directoryIndex" : 0,
-					"id" : "Projector::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Projector-Release-e689d6f1aa4d31284f02.json",
-					"name" : "Projector",
+					"id" : "Compressor::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Compressor-Release-883d58161b6b48bbe73a.json",
+					"name" : "Compressor",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "tensorboard_logger::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-tensorboard_logger-Release-f9a4ba8ff6691975cadb.json",
+					"name" : "tensorboard_logger",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test-Release-d134b352a24a514fad6f.json",
+					"name" : "test",
 					"projectIndex" : 0
 				}
 			]

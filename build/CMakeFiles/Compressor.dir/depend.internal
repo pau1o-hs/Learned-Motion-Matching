@@ -4,6 +4,8 @@
 CMakeFiles/Compressor.dir/Compressor.cpp.o
  /home/pau1o-hs/Documents/Learned Motion Matching/Compressor.cpp
  /home/pau1o-hs/Documents/Learned Motion Matching/CustomLib.hpp
+ /home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/include/crc.h
+ /home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/include/tensorboard_logger.h
  /home/pau1o-hs/Documents/libtorch/include/ATen/ATen.h
  /home/pau1o-hs/Documents/libtorch/include/ATen/CPUGeneratorImpl.h
  /home/pau1o-hs/Documents/libtorch/include/ATen/Config.h
@@ -514,6 +516,12 @@ CMakeFiles/Compressor.dir/Compressor.cpp.o
  /usr/local/cuda/include/thrust/type_traits/void_t.h
  /usr/local/cuda/include/thrust/version.h
  /usr/local/cuda/include/vector_types.h
+ event.pb.h
+ resource_handle.pb.h
+ summary.pb.h
+ tensor.pb.h
+ tensor_shape.pb.h
+ types.pb.h
 CMakeFiles/Compressor.dir/CustomLib.cpp.o
  /home/pau1o-hs/Documents/Learned Motion Matching/CustomLib.cpp
  /home/pau1o-hs/Documents/Learned Motion Matching/CustomLib.hpp
