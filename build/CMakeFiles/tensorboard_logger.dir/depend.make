@@ -35,6 +35,8 @@ CMakeFiles/tensorboard_logger.dir/tensor_shape.pb.cc.o: tensor_shape.pb.h
 
 CMakeFiles/tensorboard_logger.dir/tensorboard_logger-master/src/crc.cc.o: ../tensorboard_logger-master/src/crc.cc
 
+CMakeFiles/tensorboard_logger.dir/tensorboard_logger-master/src/tensorboard_logger.cc.o: ../tensorboard_logger-master/include/crc.h
+CMakeFiles/tensorboard_logger.dir/tensorboard_logger-master/src/tensorboard_logger.cc.o: ../tensorboard_logger-master/include/tensorboard_logger.h
 CMakeFiles/tensorboard_logger.dir/tensorboard_logger-master/src/tensorboard_logger.cc.o: ../tensorboard_logger-master/src/tensorboard_logger.cc
 CMakeFiles/tensorboard_logger.dir/tensorboard_logger-master/src/tensorboard_logger.cc.o: event.pb.h
 CMakeFiles/tensorboard_logger.dir/tensorboard_logger-master/src/tensorboard_logger.cc.o: projector_config.pb.h

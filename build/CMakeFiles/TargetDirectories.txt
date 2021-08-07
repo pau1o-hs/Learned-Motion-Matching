@@ -1,5 +1,4 @@
 /home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/rebuild_cache.dir
 /home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/edit_cache.dir
-/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/test.dir
 /home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/Compressor.dir
 /home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/tensorboard_logger.dir

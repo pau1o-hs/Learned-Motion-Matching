@@ -97,19 +97,21 @@ Compressor: CMakeFiles/Compressor.dir/build.make
 Compressor: /home/pau1o-hs/Documents/libtorch/lib/libtorch.so
 Compressor: /home/pau1o-hs/Documents/libtorch/lib/libc10.so
 Compressor: /home/pau1o-hs/Documents/libtorch/lib/libkineto.a
-Compressor: /usr/local/cuda/lib64/stubs/libcuda.so
-Compressor: /usr/local/cuda/lib64/libnvrtc.so
-Compressor: /usr/local/cuda/lib64/libnvToolsExt.so
-Compressor: /usr/local/cuda/lib64/libcudart.so
+Compressor: /usr/lib/x86_64-linux-gnu/libcuda.so
+Compressor: /usr/lib/x86_64-linux-gnu/libnvrtc.so
+Compressor: /usr/lib/x86_64-linux-gnu/libnvToolsExt.so
+Compressor: /usr/lib/x86_64-linux-gnu/libcudart.so
 Compressor: /home/pau1o-hs/Documents/libtorch/lib/libc10_cuda.so
+Compressor: libtensorboard_logger.a
+Compressor: /usr/lib/x86_64-linux-gnu/libprotobuf.so
 Compressor: /home/pau1o-hs/Documents/libtorch/lib/libc10_cuda.so
 Compressor: /home/pau1o-hs/Documents/libtorch/lib/libc10.so
-Compressor: /usr/local/cuda/lib64/libcufft.so
-Compressor: /usr/local/cuda/lib64/libcurand.so
-Compressor: /usr/local/cuda/lib64/libcublas.so
+Compressor: /usr/lib/x86_64-linux-gnu/libcufft.so
+Compressor: /usr/lib/x86_64-linux-gnu/libcurand.so
+Compressor: /usr/lib/x86_64-linux-gnu/libcublas.so
 Compressor: /usr/lib/x86_64-linux-gnu/libcudnn.so
-Compressor: /usr/local/cuda/lib64/libnvToolsExt.so
-Compressor: /usr/local/cuda/lib64/libcudart.so
+Compressor: /usr/lib/x86_64-linux-gnu/libnvToolsExt.so
+Compressor: /usr/lib/x86_64-linux-gnu/libcudart.so
 Compressor: CMakeFiles/Compressor.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable Compressor"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Compressor.dir/link.txt --verbose=$(VERBOSE)

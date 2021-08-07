@@ -36,6 +36,8 @@ CMakeFiles/tensorboard_logger.dir/tensor_shape.pb.cc.o
 CMakeFiles/tensorboard_logger.dir/tensorboard_logger-master/src/crc.cc.o
  /home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/src/crc.cc
 CMakeFiles/tensorboard_logger.dir/tensorboard_logger-master/src/tensorboard_logger.cc.o
+ /home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/include/crc.h
+ /home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/include/tensorboard_logger.h
  /home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/src/tensorboard_logger.cc
  event.pb.h
  projector_config.pb.h

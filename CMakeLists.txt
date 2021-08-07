@@ -6,18 +6,15 @@ set(Torch_DIR /home/pau1o-hs/Documents/libtorch/share/cmake/Torch)
 find_package(Torch REQUIRED)
 find_package(Protobuf REQUIRED)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+
 file(GLOB protos "tensorboard_logger-master/proto/*.proto")
-
-if(NOT PROTOBUF_FOUND)
-    message (FATAL_ERROR "Cannot find Protobuf")
-endif()
-
 file(GLOB sources "tensorboard_logger-master/src/*.cc")
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${protos})
 
 set(TENSORBOARD_INCLUDE_PATH
-  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/tensorboard_logger-master/include
   ${PROJECT_BINARY_DIR})
 
 include_directories(
@@ -30,10 +27,8 @@ add_library(tensorboard_logger STATIC
   ${PROTO_SRCS}
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
-
 add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp CustomLib.cpp)
-target_link_libraries(${PROJECT_NAME} "${TORCH_LIBRARIES}")
+target_link_libraries(${PROJECT_NAME} "${TORCH_LIBRARIES}" tensorboard_logger ${PROTOBUF_LIBRARIES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 
 # The following code block is suggested to be used on Windows.
@@ -47,9 +42,3 @@ if (MSVC)
                      ${TORCH_DLLS}
                      $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 endif (MSVC)
-
-add_executable(test
-    tensorboard_logger-master/tests/test_tensorboard_logger.cc
-)
-
-target_link_libraries(test tensorboard_logger ${Protobuf_LIBRARIES})

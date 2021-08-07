@@ -1,4 +1,4 @@
-#include "tensorboard_logger.h"
+#include "../include/tensorboard_logger.h"
 
 #include <google/protobuf/text_format.h>
 

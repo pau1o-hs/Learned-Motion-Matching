@@ -11,15 +11,15 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "../include"
+  "../tensorboard_logger-master/include"
   "."
   "/home/pau1o-hs/Documents/libtorch/include"
   "/home/pau1o-hs/Documents/libtorch/include/torch/csrc/api/include"
-  "/usr/local/cuda/include"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
+  "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/tensorboard_logger.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

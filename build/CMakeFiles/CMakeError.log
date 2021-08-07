@@ -1,21 +1,21 @@
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
 Change Dir: /home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_cfa95/fast && /usr/bin/make -f CMakeFiles/cmTC_cfa95.dir/build.make CMakeFiles/cmTC_cfa95.dir/build
+Run Build Command(s):/usr/bin/make cmTC_a21e0/fast && /usr/bin/make -f CMakeFiles/cmTC_a21e0.dir/build.make CMakeFiles/cmTC_a21e0.dir/build
 make[1]: Entering directory '/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_cfa95.dir/src.c.o
-/bin/x86_64-linux-gnu-gcc-9   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_cfa95.dir/src.c.o   -c "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/CMakeTmp/src.c"
-Linking C executable cmTC_cfa95
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cfa95.dir/link.txt --verbose=1
-/bin/x86_64-linux-gnu-gcc-9  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_cfa95.dir/src.c.o  -o cmTC_cfa95 
-/usr/bin/ld: CMakeFiles/cmTC_cfa95.dir/src.c.o: in function `main':
+Building C object CMakeFiles/cmTC_a21e0.dir/src.c.o
+/bin/x86_64-linux-gnu-gcc-9   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_a21e0.dir/src.c.o   -c "/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/CMakeTmp/src.c"
+Linking C executable cmTC_a21e0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a21e0.dir/link.txt --verbose=1
+/bin/x86_64-linux-gnu-gcc-9  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_a21e0.dir/src.c.o  -o cmTC_a21e0 
+/usr/bin/ld: CMakeFiles/cmTC_a21e0.dir/src.c.o: in function `main':
 src.c:(.text+0x46): undefined reference to `pthread_create'
 /usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
 /usr/bin/ld: src.c:(.text+0x63): undefined reference to `pthread_join'
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_cfa95.dir/build.make:87: cmTC_cfa95] Error 1
+make[1]: *** [CMakeFiles/cmTC_a21e0.dir/build.make:87: cmTC_a21e0] Error 1
 make[1]: Leaving directory '/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/CMakeTmp'
-make: *** [Makefile:121: cmTC_cfa95/fast] Error 2
+make: *** [Makefile:121: cmTC_a21e0/fast] Error 2
 
 
 Source file was:
@@ -41,18 +41,18 @@ int main(void)
 Determining if the function pthread_create exists in the pthreads failed with the following output:
 Change Dir: /home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_48c8e/fast && /usr/bin/make -f CMakeFiles/cmTC_48c8e.dir/build.make CMakeFiles/cmTC_48c8e.dir/build
+Run Build Command(s):/usr/bin/make cmTC_beb96/fast && /usr/bin/make -f CMakeFiles/cmTC_beb96.dir/build.make CMakeFiles/cmTC_beb96.dir/build
 make[1]: Entering directory '/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_48c8e.dir/CheckFunctionExists.c.o
-/bin/x86_64-linux-gnu-gcc-9   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_48c8e.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
-Linking C executable cmTC_48c8e
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_48c8e.dir/link.txt --verbose=1
-/bin/x86_64-linux-gnu-gcc-9  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_48c8e.dir/CheckFunctionExists.c.o  -o cmTC_48c8e  -lpthreads 
+Building C object CMakeFiles/cmTC_beb96.dir/CheckFunctionExists.c.o
+/bin/x86_64-linux-gnu-gcc-9   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_beb96.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
+Linking C executable cmTC_beb96
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_beb96.dir/link.txt --verbose=1
+/bin/x86_64-linux-gnu-gcc-9  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_beb96.dir/CheckFunctionExists.c.o  -o cmTC_beb96  -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_48c8e.dir/build.make:87: cmTC_48c8e] Error 1
+make[1]: *** [CMakeFiles/cmTC_beb96.dir/build.make:87: cmTC_beb96] Error 1
 make[1]: Leaving directory '/home/pau1o-hs/Documents/Learned Motion Matching/build/CMakeFiles/CMakeTmp'
-make: *** [Makefile:121: cmTC_48c8e/fast] Error 2
+make: *** [Makefile:121: cmTC_beb96/fast] Error 2
 
 
 

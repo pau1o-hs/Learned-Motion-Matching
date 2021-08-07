@@ -111,19 +111,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named test
-
-# Build rule for target.
-test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test
-.PHONY : test
-
-# fast build rule for target.
-test/fast:
-	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/build
-.PHONY : test/fast
-
-#=============================================================================
 # Target rules for targets named Compressor
 
 # Build rule for target.
@@ -419,33 +406,6 @@ tensorboard_logger-master/src/tensorboard_logger.cc.s:
 	$(MAKE) -f CMakeFiles/tensorboard_logger.dir/build.make CMakeFiles/tensorboard_logger.dir/tensorboard_logger-master/src/tensorboard_logger.cc.s
 .PHONY : tensorboard_logger-master/src/tensorboard_logger.cc.s
 
-tensorboard_logger-master/tests/test_tensorboard_logger.o: tensorboard_logger-master/tests/test_tensorboard_logger.cc.o
-
-.PHONY : tensorboard_logger-master/tests/test_tensorboard_logger.o
-
-# target to build an object file
-tensorboard_logger-master/tests/test_tensorboard_logger.cc.o:
-	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.o
-.PHONY : tensorboard_logger-master/tests/test_tensorboard_logger.cc.o
-
-tensorboard_logger-master/tests/test_tensorboard_logger.i: tensorboard_logger-master/tests/test_tensorboard_logger.cc.i
-
-.PHONY : tensorboard_logger-master/tests/test_tensorboard_logger.i
-
-# target to preprocess a source file
-tensorboard_logger-master/tests/test_tensorboard_logger.cc.i:
-	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.i
-.PHONY : tensorboard_logger-master/tests/test_tensorboard_logger.cc.i
-
-tensorboard_logger-master/tests/test_tensorboard_logger.s: tensorboard_logger-master/tests/test_tensorboard_logger.cc.s
-
-.PHONY : tensorboard_logger-master/tests/test_tensorboard_logger.s
-
-# target to generate assembly for a file
-tensorboard_logger-master/tests/test_tensorboard_logger.cc.s:
-	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.s
-.PHONY : tensorboard_logger-master/tests/test_tensorboard_logger.cc.s
-
 types.pb.o: types.pb.cc.o
 
 .PHONY : types.pb.o
@@ -481,7 +441,6 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... test"
 	@echo "... Compressor"
 	@echo "... tensorboard_logger"
 	@echo "... Compressor.o"
@@ -514,9 +473,6 @@ help:
 	@echo "... tensorboard_logger-master/src/tensorboard_logger.o"
 	@echo "... tensorboard_logger-master/src/tensorboard_logger.i"
 	@echo "... tensorboard_logger-master/src/tensorboard_logger.s"
-	@echo "... tensorboard_logger-master/tests/test_tensorboard_logger.o"
-	@echo "... tensorboard_logger-master/tests/test_tensorboard_logger.i"
-	@echo "... tensorboard_logger-master/tests/test_tensorboard_logger.s"
 	@echo "... types.pb.o"
 	@echo "... types.pb.i"
 	@echo "... types.pb.s"

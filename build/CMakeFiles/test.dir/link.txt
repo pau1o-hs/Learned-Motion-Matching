@@ -1,1 +1,0 @@
-/bin/x86_64-linux-gnu-g++-9   -D_GLIBCXX_USE_CXX11_ABI=1 -O3 -DNDEBUG  -rdynamic CMakeFiles/test.dir/tensorboard_logger-master/tests/test_tensorboard_logger.cc.o  -o test  libtensorboard_logger.a /home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a -lpthread 

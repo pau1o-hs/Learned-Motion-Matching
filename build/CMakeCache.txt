@@ -23,8 +23,9 @@ CMAKE_ADDR2LINE:FILEPATH=/bin/addr2line
 //Path to a program.
 CMAKE_AR:FILEPATH=/bin/ar
 
-//No help, variable specified on the command line.
-CMAKE_BUILD_TYPE:STRING=Release
+//Choose the type of build, options are: None Debug Release RelWithDebInfo
+// MinSizeRel ...
+CMAKE_BUILD_TYPE:STRING=
 
 //Enable/Disable color output during build.
 CMAKE_COLOR_MAKEFILE:BOOL=ON
@@ -99,8 +100,8 @@ CMAKE_EXE_LINKER_FLAGS_RELEASE:STRING=
 //Flags used by the linker during RELWITHDEBINFO builds.
 CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 
-//No help, variable specified on the command line.
-CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
+//Enable/Disable output of compile commands during generation.
+CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=OFF
 
 //Install path prefix, prepended onto install directories.
 CMAKE_INSTALL_PREFIX:PATH=/usr/local
@@ -139,9 +140,6 @@ CMAKE_OBJCOPY:FILEPATH=/bin/objcopy
 
 //Path to a program.
 CMAKE_OBJDUMP:FILEPATH=/bin/objdump
-
-//No help, variable specified on the command line.
-CMAKE_PREFIX_PATH:UNINITIALIZED=/home/pau1o-hs/Documents/libtorch
 
 //Value Computed by CMake
 CMAKE_PROJECT_DESCRIPTION:STATIC=
@@ -228,10 +226,10 @@ CUDA_BUILD_CUBIN:BOOL=OFF
 CUDA_BUILD_EMULATION:BOOL=OFF
 
 //"cudart" library
-CUDA_CUDART_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libcudart.so
+CUDA_CUDART_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcudart.so
 
 //Path to a library.
-CUDA_CUDA_LIB:FILEPATH=/usr/local/cuda/lib64/stubs/libcuda.so
+CUDA_CUDA_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libcuda.so
 
 //"cuda" library (older versions only).
 CUDA_CUDA_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcuda.so
@@ -247,7 +245,7 @@ CUDA_HOST_COMPILATION_CPP:BOOL=ON
 CUDA_HOST_COMPILER:FILEPATH=/bin/x86_64-linux-gnu-gcc-9
 
 //Path to a program.
-CUDA_NVCC_EXECUTABLE:FILEPATH=/usr/local/cuda/bin/nvcc
+CUDA_NVCC_EXECUTABLE:FILEPATH=/usr/bin/nvcc
 
 //Semi-colon delimit multiple arguments. during all build types.
 CUDA_NVCC_FLAGS:STRING=
@@ -266,7 +264,7 @@ CUDA_NVCC_FLAGS_RELEASE:STRING=
 CUDA_NVCC_FLAGS_RELWITHDEBINFO:STRING=
 
 //Path to a library.
-CUDA_NVRTC_LIB:FILEPATH=/usr/local/cuda/lib64/libnvrtc.so
+CUDA_NVRTC_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libnvrtc.so
 
 //Propagate C/CXX_FLAGS and friends to the host compiler via -Xcompile
 CUDA_PROPAGATE_HOST_FLAGS:BOOL=ON
@@ -282,10 +280,10 @@ CUDA_SDK_ROOT_DIR:PATH=CUDA_SDK_ROOT_DIR-NOTFOUND
 CUDA_SEPARABLE_COMPILATION:BOOL=OFF
 
 //Path to a file.
-CUDA_TOOLKIT_INCLUDE:PATH=/usr/local/cuda/include
+CUDA_TOOLKIT_INCLUDE:PATH=/usr/include
 
 //Toolkit location.
-CUDA_TOOLKIT_ROOT_DIR:PATH=/usr/local/cuda
+CUDA_TOOLKIT_ROOT_DIR:PATH=/usr
 
 //Print out the commands run while compiling the CUDA source file.
 //  With the Makefile generator this defaults to VERBOSE variable
@@ -294,67 +292,67 @@ CUDA_TOOLKIT_ROOT_DIR:PATH=/usr/local/cuda
 CUDA_VERBOSE_BUILD:BOOL=OFF
 
 //Version of CUDA as computed from nvcc.
-CUDA_VERSION:STRING=11.1
+CUDA_VERSION:STRING=10.1
 
 //"cublas" library
-CUDA_cublas_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libcublas.so
+CUDA_cublas_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcublas.so
 
 //"cudadevrt" library
-CUDA_cudadevrt_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libcudadevrt.a
+CUDA_cudadevrt_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcudadevrt.a
 
 //static CUDA runtime library
-CUDA_cudart_static_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libcudart_static.a
+CUDA_cudart_static_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcudart_static.a
 
 //"cufft" library
-CUDA_cufft_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libcufft.so
+CUDA_cufft_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcufft.so
 
 //"cupti" library
-CUDA_cupti_LIBRARY:FILEPATH=CUDA_cupti_LIBRARY-NOTFOUND
+CUDA_cupti_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcupti.so
 
 //"curand" library
-CUDA_curand_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libcurand.so
+CUDA_curand_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcurand.so
 
 //"cusolver" library
-CUDA_cusolver_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libcusolver.so
+CUDA_cusolver_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcusolver.so
 
 //"cusparse" library
-CUDA_cusparse_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libcusparse.so
+CUDA_cusparse_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcusparse.so
 
 //"nppc" library
-CUDA_nppc_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnppc.so
+CUDA_nppc_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppc.so
 
 //"nppial" library
-CUDA_nppial_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnppial.so
+CUDA_nppial_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppial.so
 
 //"nppicc" library
-CUDA_nppicc_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnppicc.so
+CUDA_nppicc_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppicc.so
 
 //"nppicom" library
-CUDA_nppicom_LIBRARY:FILEPATH=CUDA_nppicom_LIBRARY-NOTFOUND
+CUDA_nppicom_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppicom.so
 
 //"nppidei" library
-CUDA_nppidei_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnppidei.so
+CUDA_nppidei_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppidei.so
 
 //"nppif" library
-CUDA_nppif_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnppif.so
+CUDA_nppif_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppif.so
 
 //"nppig" library
-CUDA_nppig_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnppig.so
+CUDA_nppig_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppig.so
 
 //"nppim" library
-CUDA_nppim_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnppim.so
+CUDA_nppim_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppim.so
 
 //"nppist" library
-CUDA_nppist_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnppist.so
+CUDA_nppist_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppist.so
 
 //"nppisu" library
-CUDA_nppisu_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnppisu.so
+CUDA_nppisu_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppisu.so
 
 //"nppitc" library
-CUDA_nppitc_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnppitc.so
+CUDA_nppitc_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnppitc.so
 
 //"npps" library
-CUDA_npps_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnpps.so
+CUDA_npps_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnpps.so
 
 //Folder containing NVIDIA cuDNN header files
 CUDNN_INCLUDE_DIR:PATH=
@@ -383,26 +381,8 @@ Compressor_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/bu
 //Value Computed by CMake
 Compressor_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
 
-//Value Computed by CMake
-DEcompressor_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/build
-
-//Value Computed by CMake
-DEcompressor_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
-
-//Value Computed by CMake
-Decompressor_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/build
-
-//Value Computed by CMake
-Decompressor_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
-
-//Value Computed by CMake
-Deompressor_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/build
-
-//Value Computed by CMake
-Deompressor_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
-
 //Path to a library.
-LIBNVTOOLSEXT:FILEPATH=/usr/local/cuda/lib64/libnvToolsExt.so
+LIBNVTOOLSEXT:FILEPATH=/usr/lib/x86_64-linux-gnu/libnvToolsExt.so
 
 //The directory containing a CMake configuration file for MKLDNN.
 MKLDNN_DIR:PATH=MKLDNN_DIR-NOTFOUND
@@ -410,53 +390,29 @@ MKLDNN_DIR:PATH=MKLDNN_DIR-NOTFOUND
 //The directory containing a CMake configuration file for MKL.
 MKL_DIR:PATH=MKL_DIR-NOTFOUND
 
-//Value Computed by CMake
-P_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/build
-
-//Value Computed by CMake
-P_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
-
-//Value Computed by CMake
-Projector_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/build
-
-//Value Computed by CMake
-Projector_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
-
 //Path to a file.
 Protobuf_INCLUDE_DIR:PATH=/usr/include
 
 //Path to a library.
-Protobuf_LIBRARY_DEBUG:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a
+Protobuf_LIBRARY_DEBUG:FILEPATH=/usr/lib/x86_64-linux-gnu/libprotobuf.so
 
 //Path to a library.
-Protobuf_LIBRARY_RELEASE:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a
+Protobuf_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libprotobuf.so
 
 //Path to a library.
-Protobuf_LITE_LIBRARY_DEBUG:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotobuf-lite.a
+Protobuf_LITE_LIBRARY_DEBUG:FILEPATH=/usr/lib/x86_64-linux-gnu/libprotobuf-lite.so
 
 //Path to a library.
-Protobuf_LITE_LIBRARY_RELEASE:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotobuf-lite.a
+Protobuf_LITE_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libprotobuf-lite.so
 
 //The Google Protocol Buffers Compiler
 Protobuf_PROTOC_EXECUTABLE:FILEPATH=/usr/bin/protoc
 
 //Path to a library.
-Protobuf_PROTOC_LIBRARY_DEBUG:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotoc.a
+Protobuf_PROTOC_LIBRARY_DEBUG:FILEPATH=Protobuf_PROTOC_LIBRARY_DEBUG-NOTFOUND
 
 //Path to a library.
-Protobuf_PROTOC_LIBRARY_RELEASE:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libprotoc.a
-
-//Value Computed by CMake
-Stepeer_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/build
-
-//Value Computed by CMake
-Stepeer_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
-
-//Value Computed by CMake
-Stepper_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/build
-
-//Value Computed by CMake
-Stepper_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
+Protobuf_PROTOC_LIBRARY_RELEASE:FILEPATH=Protobuf_PROTOC_LIBRARY_RELEASE-NOTFOUND
 
 //Path to a library.
 TORCH_LIBRARY:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libtorch.so
@@ -466,18 +422,6 @@ c10_LIBRARY:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libc10.so
 
 //Path to a library.
 kineto_LIBRARY:FILEPATH=/home/pau1o-hs/Documents/libtorch/lib/libkineto.a
-
-//Value Computed by CMake
-ompressor_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/build
-
-//Value Computed by CMake
-ompressor_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
-
-//Value Computed by CMake
-test_BINARY_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching/build
-
-//Value Computed by CMake
-test_SOURCE_DIR:STATIC=/home/pau1o-hs/Documents/Learned Motion Matching
 
 
 ########################
@@ -649,6 +593,8 @@ CUDA_CUDART_LIBRARY-ADVANCED:INTERNAL=1
 CUDA_CUDA_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CUDA_GENERATED_OUTPUT_DIR
 CUDA_GENERATED_OUTPUT_DIR-ADVANCED:INTERNAL=1
+//Returned GPU architectures from detect_gpus tool
+CUDA_GPU_DETECT_OUTPUT:INTERNAL=7.5
 //ADVANCED property for variable: CUDA_HOST_COMPILATION_CPP
 CUDA_HOST_COMPILATION_CPP-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CUDA_NVCC_EXECUTABLE
@@ -676,10 +622,10 @@ CUDA_SEPARABLE_COMPILATION-ADVANCED:INTERNAL=1
 CUDA_TOOLKIT_INCLUDE-ADVANCED:INTERNAL=1
 //This is the value of the last time CUDA_TOOLKIT_ROOT_DIR was
 // set successfully.
-CUDA_TOOLKIT_ROOT_DIR_INTERNAL:INTERNAL=/usr/local/cuda
+CUDA_TOOLKIT_ROOT_DIR_INTERNAL:INTERNAL=/usr
 //This is the value of the last time CUDA_TOOLKIT_TARGET_DIR was
 // set successfully.
-CUDA_TOOLKIT_TARGET_DIR_INTERNAL:INTERNAL=/usr/local/cuda
+CUDA_TOOLKIT_TARGET_DIR_INTERNAL:INTERNAL=/usr
 //Use the static version of the CUDA runtime library if available
 CUDA_USE_STATIC_CUDA_RUNTIME:INTERNAL=OFF
 //ADVANCED property for variable: CUDA_VERBOSE_BUILD
@@ -739,11 +685,11 @@ CUDNN_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CUDNN_ROOT
 CUDNN_ROOT-ADVANCED:INTERNAL=1
 //Details about finding CUDA
-FIND_PACKAGE_MESSAGE_DETAILS_CUDA:INTERNAL=[/usr/local/cuda][/usr/local/cuda/bin/nvcc][/usr/local/cuda/include][/usr/local/cuda/lib64/libcudart.so][v11.1()]
+FIND_PACKAGE_MESSAGE_DETAILS_CUDA:INTERNAL=[/usr][/usr/bin/nvcc][/usr/include][/usr/lib/x86_64-linux-gnu/libcudart.so][v10.1()]
 //Details about finding CUDNN
 FIND_PACKAGE_MESSAGE_DETAILS_CUDNN:INTERNAL=[/usr/lib/x86_64-linux-gnu/libcudnn.so][/usr/include][v()]
 //Details about finding Protobuf
-FIND_PACKAGE_MESSAGE_DETAILS_Protobuf:INTERNAL=[/home/pau1o-hs/Documents/libtorch/lib/libprotobuf.a;-lpthread][/usr/include][v3.6.1()]
+FIND_PACKAGE_MESSAGE_DETAILS_Protobuf:INTERNAL=[/usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread][/usr/include][v3.6.1()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //Details about finding Torch
@@ -767,5 +713,5 @@ Protobuf_PROTOC_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //Result of TRY_COMPILE
 compile_result:INTERNAL=TRUE
 //Result of TRY_RUN
-run_result:INTERNAL=255
+run_result:INTERNAL=0
 

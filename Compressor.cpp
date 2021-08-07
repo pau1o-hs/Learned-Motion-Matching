@@ -1,5 +1,5 @@
 #include "CustomLib.hpp"
-#include "tensorboard_logger-master/include/tensorboard_logger.h"
+#include "tensorboard_logger.h"
 
 // C++ neural network model defined with value semantics
 struct Net : torch::nn::Module
@@ -42,8 +42,9 @@ int main()
 {
     auto start = chrono::high_resolution_clock::now();
 
-    cout << "[Device: " << at::cuda::getDeviceProperties(0)->name << "]" << endl << endl;
-
+    cout << "[Device: " << at::cuda::getDeviceProperties(0)->name << "]" << endl;
+    cout << "[Count: " << torch::cuda::device_count() << "]" << endl << endl;
+    
     // VARIABLES
     const int64_t n_feature = 539;
     const int64_t n_hidden1 = 512;
@@ -80,6 +81,7 @@ int main()
 	torch::optim::StepLR scheduler(optimizer, 100, 0.99);
 
     TensorBoardLogger logger("./demo/tfevents.pb");
+    
     std::cout << "Training Compressor...\n";
 
     for (size_t epoch = 1; epoch <= 100; epoch++)
@@ -122,7 +124,7 @@ int main()
 
         logger.add_scalar("C++ Loss", epoch, epochLoss);
 
-        if (epoch % 5000 == 0)
+        if (epoch % 25 == 0)
         {
             cout << "Epoch: " << epoch << " | Loss: " << epochLoss << endl;
         }
@@ -185,4 +187,7 @@ int main()
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::seconds>(stop - start);
     cout << "Runtime: " << (float) (duration.count() / 60.0f) << " minutes" << endl;
+
+    // Optional:  Delete all global objects allocated by libprotobuf.
+    google::protobuf::ShutdownProtobufLibrary();
 }

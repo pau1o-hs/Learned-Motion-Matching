@@ -386,6 +386,22 @@ google/protobuf/extension_set.h
 google/protobuf/generated_enum_reflection.h
 -
 
+/home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/include/crc.h
+
+/home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/include/tensorboard_logger.h
+exception
+-
+fstream
+-
+string
+-
+vector
+-
+crc.h
+/home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/include/crc.h
+event.pb.h
+/home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/include/event.pb.h
+
 /home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/src/crc.cc
 stdio.h
 -
@@ -395,8 +411,8 @@ cstring
 -
 
 /home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/src/tensorboard_logger.cc
-tensorboard_logger.h
-/home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/src/tensorboard_logger.h
+../include/tensorboard_logger.h
+/home/pau1o-hs/Documents/Learned Motion Matching/tensorboard_logger-master/include/tensorboard_logger.h
 google/protobuf/text_format.h
 -
 algorithm
