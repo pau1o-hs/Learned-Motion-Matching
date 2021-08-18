@@ -1,4 +1,4 @@
-# Learned-Motion-Matching (Work in progress)
+# Learned Motion Matching (Work in progress)
 
 A neural-network-based generative models for character animation
 
