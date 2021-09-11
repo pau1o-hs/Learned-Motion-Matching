@@ -1,0 +1,118 @@
+import torch
+import torch.nn.functional as F
+from torch.utils.data.dataset import Dataset
+import random
+
+device = torch.device("cuda")
+
+# neural network model
+class Compressor(torch.nn.Module):
+    # nn layers shape
+    def __init__(self, n_feature, n_hidden, n_hidden2, n_hidden3, n_output):
+        super(Compressor, self).__init__()
+        self.hidden = torch.nn.Linear(n_feature, n_hidden) 
+        self.hidden2 = torch.nn.Linear(n_hidden, n_hidden2)
+        self.hidden3 = torch.nn.Linear(n_hidden2, n_hidden3)
+        self.predict = torch.nn.Linear(n_hidden3, n_output)
+
+    # feed forward
+    def forward(self, x, getEncoded=True):
+        x = F.elu(self.hidden(x))
+        x = F.elu(self.hidden2(x))
+        
+        # get reduced dimension of data
+        if (getEncoded):
+            return x
+
+        x = F.elu(self.hidden3(x))
+        x = self.predict(x)
+        return x
+
+# neural network model
+class Decompressor(torch.nn.Module):
+    # nn layers shape
+    def __init__(self, n_feature, n_hidden, n_output):
+        super(Decompressor, self).__init__()
+        self.hidden = torch.nn.Linear(n_feature, n_hidden)
+        self.predict = torch.nn.Linear(n_hidden, n_output)
+    
+    # feed forward
+    def forward(self, x):
+        x = F.relu(self.hidden(x))
+        x = self.predict(x)
+        return x
+
+# neural network model
+class Stepper(torch.nn.Module):
+    # nn layers shape
+    def __init__(self, n_feature, n_hidden, n_output):
+        super(Stepper, self).__init__()
+        self.n_hidden = n_hidden
+
+        self.hidden  = torch.nn.LSTM(n_feature, n_hidden, 1)
+        self.hidden2  = torch.nn.LSTM(n_hidden, n_hidden, 1)
+        self.predict = torch.nn.Linear(n_hidden, n_output)
+
+    # feed forward
+    def forward(self, x, h_t, c_t): 
+        h_t2 = torch.zeros(1, x.size(1), 512, device=device).requires_grad_()
+        c_t2 = torch.zeros(1, x.size(1), 512, device=device).requires_grad_() 
+
+        output, (h_t, c_t) = self.hidden(x, (h_t, c_t))
+        output = F.relu(output)
+
+        output, (h_t2, c_t2) = self.hidden2(output, (h_t2, c_t2))
+        output = F.relu(output)
+
+        output = self.predict(output)
+        return output, h_t2, c_t2
+
+# neural network model
+class Projector(torch.nn.Module):
+    # nn layers shape
+    def __init__(self, n_feature, n_hidden, n_hidden2, n_hidden3, n_hidden4, n_output):
+        super(Projector, self).__init__()
+        self.hidden = torch.nn.Linear(n_feature, n_hidden)  
+        self.hidden2 = torch.nn.Linear(n_hidden, n_hidden2) 
+        self.hidden3 = torch.nn.Linear(n_hidden2, n_hidden3)
+        self.hidden4 = torch.nn.Linear(n_hidden3, n_hidden4)
+        self.predict = torch.nn.Linear(n_hidden4, n_output)
+
+    # feed forward
+    def forward(self, x):
+        x = F.relu(self.hidden(x)) 
+        x = F.relu(self.hidden2(x))
+        x = F.relu(self.hidden3(x))
+        x = F.relu(self.hidden4(x))
+        x = self.predict(x)
+        return x
+
+# loss function (wip)
+def stepperLoss(data, predict, target):
+    l1loss = torch.nn.L1Loss(target - (data + predict)).item()
+    loss = l1loss + torch.nn.L1Loss(((data[:19] - target[1:]) / 0.017) - ((predict[:19] - predict[1:]) / 0.017)).item()
+    return loss
+
+# loss function (wip)
+def projectorLoss(noiseInput, predict, target):
+    l2loss = torch.nn.L1Loss()(torch.nn.MSELoss()(predict[:, :24], noiseInput), torch.nn.MSELoss()(target[:, :24], noiseInput))
+    loss = torch.nn.L1Loss()(predict, target) + l2loss
+    return loss
+
+# override tensor dataset to get a sequence length
+class StepperDataset(Dataset):
+    def __init__(self, dataX, dataY, window=20):
+        self.dataX = dataX
+        self.dataY = dataY
+        self.window = window
+        self.selectedClip = 0
+
+    def __getitem__(self, index):
+        frameIndex = random.randint(0, len(self.dataX[self.selectedClip]) - self.window - 1)
+        x = self.dataX[self.selectedClip][frameIndex:frameIndex+self.window]
+        y = self.dataY[self.selectedClip][frameIndex:frameIndex+self.window]
+        return x, y
+
+    def __len__(self):
+        self.selectedClip = random.randint(0, len(self.dataX) - 1)
+        return len(self.dataX[self.selectedClip])
