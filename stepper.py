@@ -2,13 +2,10 @@ import sys
 sys.path.append('./misc')
 
 from torch.utils.tensorboard import SummaryWriter
-from torch.utils.data.dataset import Dataset
 import time
 import torch
 import NNModels
 import CustomFunctions
-import torch_optimizer as optim
-import torch.utils.data as Data
 
 # runtime start
 start_time = time.time()
@@ -18,7 +15,7 @@ print(torch.cuda.get_device_name(0))
 device = torch.device("cuda")
 
 # define nn params
-net = NNModels.Stepper(n_feature=24+32, n_hidden=512, n_output=24+32).to(device)
+model = NNModels.Stepper(n_feature=24+32, n_hidden=512, n_output=24+32).to(device)
 
 # load data
 stepperInput = CustomFunctions.LoadData("XData", True)
@@ -51,11 +48,9 @@ for i in range(len(stepperInput)):
     normY.append(CustomFunctions.NormalizeData(y[i]))
 
 # dataloader settings for training
-dataSet = NNModels.StepperDataset(normX, normY)
-train_loader = Data.DataLoader(dataSet, shuffle=True, batch_size=32)
-
-optimizer = optim.RAdam(net.parameters(), lr=0.001)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1000, gamma=0.99)
+train = NNModels.StepperDataset(normX, normY)
+train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
+optimizer, scheduler = NNModels.TrainSettings(model)
 
 # init tensorboard
 writer = SummaryWriter()
@@ -78,7 +73,7 @@ for t in range(1):
         c_t = torch.zeros(1, n_batch, 512, device=device).requires_grad_()
 
         # feed forward
-        prediction, h_t, c_t = net(data, h_t, c_t)
+        prediction, h_t, c_t = model(data, h_t, c_t)
 
         # MSELoss: prediction, target
         loss = torch.nn.L1Loss()(prediction, target)   
@@ -105,7 +100,7 @@ c_t = torch.rand(1, 1, 512, device=device)
 
 # export the model
 torch.onnx.export(
-    net, (x, h_t, c_t),
+    model, (x, h_t, c_t),
     "onnx/stepper.onnx", export_params=True,
     opset_version=9, do_constant_folding=True,
     input_names = ['x', 'h0', 'c0'], output_names =['y', 'hn', 'cn']

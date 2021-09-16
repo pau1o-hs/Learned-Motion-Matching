@@ -7,8 +7,6 @@ import torch
 import NNModels
 import CustomFunctions
 import numpy as np
-import torch_optimizer as optim
-import torch.utils.data as Data
 
 # runtime start
 start_time = time.time()
@@ -36,11 +34,9 @@ normX = CustomFunctions.NormalizeData(x)
 normY = CustomFunctions.NormalizeData(y)
 
 # dataloader settings for training
-train = Data.TensorDataset(normX, normY)
-train_loader = Data.DataLoader(train, shuffle=True, batch_size=32)
-
-optimizer = optim.RAdam(model.parameters(), lr=0.001)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1000, gamma=0.99)
+train = NNModels.Data.TensorDataset(normX, normY)
+train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
+optimizer, scheduler = NNModels.TrainSettings(model)
 
 # init tensorboard
 writer = SummaryWriter()
