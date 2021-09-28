@@ -10,7 +10,7 @@ Currently, this project can be separated in two parts:
 * Unity: Extract all character animations information and store in three files: XData.txt, YData.txt and HierarchyData.txt (I should extract it using .bvh file direcly, but I'm leaving it for later);
 * Pytorch: Using above generated datas, I train the neural network models.
 
-After training, .onnx files are generated, which are exported to Unity, where I can run the neural net inference using [Barracuda](https://medium.com/@a.abelhopereira/how-to-use-pytorch-models-in-unity-aa1e964d3374)
+After training, .onnx files are generated, which are exported to Unity, where I can run the neural nets inference using [Barracuda](https://medium.com/@a.abelhopereira/how-to-use-pytorch-models-in-unity-aa1e964d3374)
 
 ### XData.txt
 This file consist of C blocks, N lines and M columns. C is the number of clips; Ni is the number of frames of clip i; M is the number of features (Described in this [paper](https://theorangeduck.com/media/uploads/other_stuff/Learned_Motion_Matching.pdf), section 3:  BASIC MOTION MATCHING).
@@ -54,9 +54,7 @@ HierarchyData.txt should be:
 ```
 
 ## Roadmap
-* Improve this readme
 * Fix the the neural network losses (currently);
-* ... (don't know if it's just the above missing);
 * Extract character animations information using .bvh, without Unity.
 
 ## Note
