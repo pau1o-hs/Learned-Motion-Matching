@@ -19,28 +19,27 @@ model = NNModels.Stepper(n_feature=24+32, n_hidden=512, n_output=24+32).to(devic
 
 # load data
 stepperInput = CustomFunctions.LoadData("XData", True)
-latent = CustomFunctions.LoadData("LatentVariables")
+stepperNext = CustomFunctions.LoadData("XData", True)
+latent = CustomFunctions.LoadData("zData")
 
 # combined features (x + z)
 latentCount = 0
 for i in range(len(stepperInput)):
     for j in range(len(stepperInput[i])):
         stepperInput[i][j].extend(latent[latentCount])
+        stepperNext[i][j].extend(latent[latentCount])
         latentCount += 1
 
 # output: input shifted -1
-stepperNext = stepperInput
 for i in range(len(stepperInput)):
-    for j in range(len(stepperInput[i])):
-        stepperNext[i][j].append(stepperNext[i][j].pop(0))
+    stepperNext[i].append(stepperNext[i].pop(0))
 
-# normalize data
+# list of tensors (each tensor represent a clip)
 x = []
 y = []
 normX = []
 normY = []
 
-# list of tensors (each tensor represent a clip)
 for i in range(len(stepperInput)):
     x.append(torch.tensor(stepperInput[i], device=device))
     y.append(torch.tensor(stepperNext[i], device=device))
@@ -48,7 +47,7 @@ for i in range(len(stepperInput)):
     normY.append(CustomFunctions.NormalizeData(y[i]))
 
 # dataloader settings for training
-train = NNModels.StepperDataset(normX, normY)
+train = NNModels.StepperDataset((normX, normY), window=20)
 train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
 optimizer, scheduler = NNModels.TrainSettings(model)
 
@@ -56,7 +55,7 @@ optimizer, scheduler = NNModels.TrainSettings(model)
 writer = SummaryWriter()
 
 # train the network. range = epochs
-for t in range(1):
+for t in range(10001):
     epochLoss = 0.0
 
     for batch_idx, (data, target) in enumerate(train_loader):    
@@ -75,8 +74,11 @@ for t in range(1):
         # feed forward
         prediction, h_t, c_t = model(data, h_t, c_t)
 
-        # MSELoss: prediction, target
-        loss = torch.nn.L1Loss()(prediction, target)   
+        #losses
+        loss_val = torch.nn.L1Loss()(prediction, target) 
+        loss_vel = torch.nn.L1Loss()((prediction[:19] - prediction[1:]) / 0.017, (target[:19] - target[1:]) / 0.017)
+
+        loss = loss_val + loss_vel
 
         optimizer.zero_grad()   # clear gradients for next train
         loss.backward()         # backpropagation, compute gradients
@@ -84,11 +86,11 @@ for t in range(1):
         scheduler.step()        # step learning rate schedule
 
         # log loss value
-        epochLoss += loss * prediction.size(0)
+        epochLoss += loss.item() * prediction.size(0)
 
     # just printing where training is
     if t % 500 == 0:
-        print(t, epochLoss.item())
+        print(t, epochLoss)
     
     # log loss in tensorboard    
     writer.add_scalar('Python Stepper Loss', epochLoss, t)

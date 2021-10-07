@@ -71,7 +71,10 @@ for t in range(1):
         prediction = model(dataNoise)
 
         # MSELoss: prediction, target
-        loss = torch.nn.MSELoss()(prediction, target)   
+        loss_val  = torch.nn.L1Loss()(prediction, newTargets)   
+        loss_dist = torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(newTargets[:,:24], dataNoise))   
+
+        loss = loss_val + loss_dist
 
         optimizer.zero_grad()   # clear gradients for next train
         loss.backward()         # backpropagation, compute gradients
@@ -79,11 +82,11 @@ for t in range(1):
         scheduler.step()        # step learning rate schedule
 
         # log loss value
-        epochLoss += loss * prediction.size(0)
+        epochLoss += loss.item() * prediction.size(0)
     
     # just printing where training is
     if t % 500 == 0:
-        print(t, epochLoss.item())
+        print(t, epochLoss)
     
     # log loss in tensorboard  
     writer.add_scalar('Python Projector Loss', epochLoss, t)

@@ -1,13 +1,13 @@
-import numpy as np
 import torch
-from torch._C import device
+
+device = torch.device("cpu")
 
 # if stepper is true, make a list of clips
 def LoadData(filename, isStepper=False):
     preData = []
     data = []
     
-    with open("/home/pau1o-hs/Documents/Database/" + filename + ".txt") as f:
+    with open("database/" + filename + ".txt") as f:
         for line in f:
             inner_list = [elt.strip() for elt in line.split(' ')]
 
@@ -22,71 +22,75 @@ def LoadData(filename, isStepper=False):
 
             preData.append(converted)
     
-    if not isStepper:
+    if isStepper == False:
         data = preData
 
     return data
 
-def NormalizeData(data):
-    means = data.mean(dim=1, keepdim=True)
-    stds  = data.std(dim=1, keepdim=True)
-    normalized_data = (data - means) / stds
+def NormalizeData(data, dim=1):
+    means = data.mean(dim=dim, keepdim=True)
+    stds  = data.std(dim=dim, keepdim=True)
+    data = (data - means) / stds
 
-    return normalized_data
+    return data
 
 def q_mult(a, b):
-    aw, ax, ay, az = torch.unbind(a, -1)
-    bw, bx, by, bz = torch.unbind(b, -1)
+    ax, ay, az, aw = a[:,0], a[:,1], a[:,2], a[:,3]
+    bx, by, bz, bw = b[:,0], b[:,1], b[:,2], b[:,3]
     ow = aw * bw - ax * bx - ay * by - az * bz
     ox = aw * bx + ax * bw + ay * bz - az * by
     oy = aw * by - ax * bz + ay * bw + az * bx
     oz = aw * bz + ax * by - ay * bx + az * bw
 
-    return torch.stack((ow, ox, oy, oz), -1)
+    return torch.stack((ox, oy, oz, ow), -1)
 
 def q_conjugate(a):
-    w, x, y, z = torch.unbind(a, -1)
-    return torch.stack((w, -x, -y, -z), -1)
+    x, y, z, w = a[:,0], a[:,1], a[:,2], a[:,3]
+    return torch.stack((-x, -y, -z, w), -1)
 
 def qv_mult(q1, v1):
-    q2 = torch.cat((torch.tensor([0.0], device='cuda'), v1), dim=0)
-    return q_mult(q_mult(q1, q2), q_conjugate(q1))[1:]
+    q2 = torch.cat((v1, torch.zeros(q1.size(0), 1).to(device)), dim=1).to(device)
+    output = q_mult(q_mult(q1, q2), q_conjugate(q1))[:,:-1]
 
-def ForwardKinematics(y, parent):
-    output = torch.empty(0, y.size(1), device='cuda', requires_grad=True)
+    return output
 
-    for i in range(y.size(0)):
-        q = torch.empty(0, 13, device='cuda', requires_grad=True)
-        q = torch.cat((q, y[i][:13].view(1, 13)), dim=0)
+def ForwardKinematics(y, hierarchy):
+    # y = yPred.to(device)
+    output = []
 
-        current = 1
+    for i in range(len(y)):
+        q = torch.empty(y[i].size(0), 0).to(device)
+        q = torch.cat((q, y[i][:,:13].to(device)), dim=1).to(device)
+        bone = 1
 
-        for j in range(13, y.size(1), 13):
-            yt      = y[i,j:j+3]
-            yr      = y[i,j+3:j+7]
-            ytVel   = y[i,j+7:j+10]
-            yrVel   = y[i,j+10:j+13]
+        for j in range(13, y[i].size(1), 13):
+            yt      = y[i][:,j:j+3].to(device)
+            yr      = y[i][:,j+3:j+7].to(device)
+            ytVel   = y[i][:,j+7:j+10].to(device)
+            yrVel   = y[i][:,j+10:j+13].to(device)
             
-            multComponentA = qv_mult(q[parent[current]][3:7], yt)
-            qt      = q[parent[current]][0:3] + multComponentA
+            parent = hierarchy[bone] * 13
 
-            multComponentB = q_mult(q[parent[current]][3:7], yr)
-            qr      = q[parent[current]][3:7] + multComponentB
+            # qt
+            multComponentA = qv_mult(q[:,parent+3 : parent+7], yt)
+            qt                     = q[:,parent+0 : parent+3] + multComponentA
 
-            multComponentC = qv_mult(q[parent[current]][3:7], yrVel)
-            qrVel   = q[parent[current]][10:13] + multComponentC
+            # qr
+            multComponentB = q_mult(q[:,parent+3 : parent+7], yr)
+            qr                    = q[:,parent+3 : parent+7] + multComponentB
+
+            # qrVel
+            multComponentC = qv_mult(q[:,parent+3  : parent+7], yrVel)
+            qrVel                  = q[:,parent+10 : parent+13] + multComponentC
             
-            multComponentD = qv_mult(q[parent[current]][3:7], ytVel)
-            qtVel   = q[parent[current]][7:10] + multComponentD + torch.cross(qrVel, multComponentA, dim=0)
+            # qtVel
+            multComponentD = qv_mult(q[:,parent+3 : parent+7], ytVel)
+            qtVel                  = q[:,parent+7 : parent+10] + multComponentD + torch.cross(qrVel, multComponentA, dim=1)
 
-            current += 1
-            q = torch.cat((q, torch.cat((qt, qr, qtVel, qrVel), dim=0).view(1, 13)), dim=0)
-
-        qAppend = torch.flatten(q)
-        output = torch.cat((output, qAppend.view(1, qAppend.size(0))))
+            bone += 1
+            q = torch.cat((q, qt, qr, qtVel, qrVel), dim=1).to(device)
         
-        del q
-        del qAppend
+        output.append(q.to('cuda'))
 
     return output
 

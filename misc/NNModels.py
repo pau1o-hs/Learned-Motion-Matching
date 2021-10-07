@@ -4,6 +4,7 @@ import random
 import torch_optimizer as optim
 import torch.utils.data as Data
 import torch.nn.functional as F
+from copy import deepcopy
 
 device = torch.device("cuda")
 
@@ -86,46 +87,33 @@ class Projector(torch.nn.Module):
 
 # override tensor dataset to get a sequence length
 class StepperDataset(Dataset):
-    def __init__(self, dataX, dataY, window=20):
-        self.dataX = dataX
-        self.dataY = dataY
+    def __init__(self, datas, window=1):
+        self.datas = datas
         self.window = window
         self.selectedClip = 0
+        self.samples = []
+        self.fullBatch = []
 
+        # clips length
+        for i in range(len(self.datas[0])):
+            # frames length
+            for j in range(self.datas[0][i].size(0) - self.window + 1):
+                self.samples.append((i, j))
+            
     def __getitem__(self, index):
-        frameIndex = random.randint(0, len(self.dataX[self.selectedClip]) - self.window - 1)
-        x = self.dataX[self.selectedClip][frameIndex:frameIndex+self.window]
-        y = self.dataY[self.selectedClip][frameIndex:frameIndex+self.window]
-        return x, y
+        output = ()
+        index = self.fullBatch.pop()
+
+        for i in range(len(self.datas)):
+            output = output + (self.datas[i][index[0]][index[1]:index[1]+self.window],)
+
+        return output
 
     def __len__(self):
-        self.selectedClip = random.randint(0, len(self.dataX) - 1)
-        return len(self.dataX[self.selectedClip])
+        self.fullBatch = self.samples.copy()
 
-# wip
-def compressorLoss(zPred, z):
-    lreg = torch.nn.MSELoss()(zPred, z)
-    sreg = torch.nn.L1Loss()(zPred, z)
-    
-    return lreg + sreg
-
-# wip
-def decompressorLoss(noiseInput, predict, target):
-    l2loss = torch.nn.L1Loss()(torch.nn.MSELoss()(predict[:, :24], noiseInput), torch.nn.MSELoss()(target[:, :24], noiseInput))
-    loss = torch.nn.L1Loss()(predict, target) + l2loss
-    return loss
-
-# wip
-def stepperLoss(data, predict, target):
-    l1loss = torch.nn.L1Loss(target - (data + predict)).item()
-    loss = l1loss + torch.nn.L1Loss(((data[:19] - target[1:]) / 0.017) - ((predict[:19] - predict[1:]) / 0.017)).item()
-    return loss
-
-# wip
-def projectorLoss(noiseInput, predict, target):
-    l2loss = torch.nn.L1Loss()(torch.nn.MSELoss()(predict[:, :24], noiseInput), torch.nn.MSELoss()(target[:, :24], noiseInput))
-    loss = torch.nn.L1Loss()(predict, target) + l2loss
-    return loss
+        random.shuffle(self.fullBatch)
+        return len(self.fullBatch)
 
 # dataloader settings for training
 def TrainSettings(model):

@@ -9,6 +9,7 @@ import torch
 import NNModels
 import CustomFunctions
 import numpy as np
+import torch_optimizer as optim
 
 # runtime start
 start_time = time.time()
@@ -18,130 +19,136 @@ print(torch.cuda.get_device_name(0))
 device = torch.device("cuda")
 
 # define nn params
-compressor   = NNModels.Compressor(n_feature=2002, n_hidden=512, n_hidden2=32, n_hidden3=512, n_output=2002).to(device)
+compressor   = NNModels.Compressor(n_feature=1001, n_hidden=512, n_hidden2=32, n_hidden3=512, n_output=1001).to(device)
 decompressor = NNModels.Decompressor(n_feature=24+32, n_hidden=512, n_output=1001).to(device)
 
 # load data
-xData = CustomFunctions.LoadData("XData")
-yData = CustomFunctions.LoadData("YData")
+xData = CustomFunctions.LoadData("XData", True)
+yData = CustomFunctions.LoadData("YData", True)
 
-# convert list to tensor
-xTensor = torch.tensor(xData, dtype=torch.float).to(device)
-yTensor = torch.tensor(yData, dtype=torch.float).to(device)
-qTensor = torch.empty(0, 1001).to(device=device)
-zTensor = torch.empty(0, 2002).to(device=device)
-zTNorm  = torch.empty(0, 2002).to(device=device)
+hierarchy = CustomFunctions.LoadData("HierarchyData")
+hierarchy = [int(i) for i in hierarchy[0]]
 
-# rig hierarchy
-parent = CustomFunctions.LoadData("HierarchyData")
-parent = [int(i) for i in parent[0]]
+xTensor = []
+yTensor = []
+qTensor = []
+zTensor = []
 
-if os.path.isfile('../Database/ZNormData.txt'): 
-    qData = CustomFunctions.LoadData("QData")
-    zData = CustomFunctions.LoadData("ZNormData")
-    qTensor = torch.tensor(qData, dtype=torch.float).to(device)
-    zTNorm  = torch.tensor(zData, dtype=torch.float).to(device)
+# list of tensors
+for i in range(len(xData)):
+    xTensor.append(torch.tensor(xData[i], dtype=torch.float).to(device))
+    yTensor.append(torch.tensor(yData[i], dtype=torch.float).to(device))
 
-    print('Data loaded')
+qTensor = CustomFunctions.ForwardKinematics(yTensor, hierarchy)
 
-else:
-    qTensor = CustomFunctions.ForwardKinematics(yTensor, parent)
-    zTensor = torch.cat((yTensor, qTensor), dim=1);
-    zTNorm = CustomFunctions.NormalizeData(zTensor)
+for i in range(len(qTensor)):
+    zTensor.append(torch.cat((yTensor[i], qTensor[i]), dim=1))
+    zTensor[i] = CustomFunctions.NormalizeData(zTensor[i])
 
-    # save qData
-    with open('../Database/QData.txt', 'w+') as f:
-        f.write('\n'.join(' '.join(str(j) for j in i) for i in qTensor.tolist()))
-    
-    # save zNormData
-    with open('../Database/ZNormData.txt', 'w+') as f:
-        f.write('\n'.join(' '.join(str(j) for j in i) for i in zTNorm.tolist()))
+print()
 
-    print('Data generated')
+# relevant dataset indexes
+localTransforms = []
+globalTransforms = []
+velocities = []
+rootVelocity = range(7, 13)
 
-# dataloader settings for training
-train = NNModels.Data.TensorDataset(xTensor, yTensor, qTensor, zTNorm)
+[localTransforms.extend(list(range(i, i + 7))) for i in range(0, yTensor[0].size(1), 13)]
+[globalTransforms.extend(list(range(i, i + 7))) for i in range(1001, zTensor[0].size(1), 13)]
+[velocities.extend(list(range(i + 7, i + 13))) for i in range(0, zTensor[0].size(1), 13)]
+
+# dataloader settings
+train = NNModels.StepperDataset((xTensor, yTensor, qTensor, zTensor), window=2)
 train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
 c_optimizer, c_scheduler = NNModels.TrainSettings(compressor)
 d_optimizer, d_scheduler = NNModels.TrainSettings(decompressor)
 
+# c_optimizer = optim.RAdam(compressor.parameters(), lr=0.001, weight_decay=1e-3)
+# c_scheduler = torch.optim.lr_scheduler.StepLR(c_optimizer, step_size=1000, gamma=0.99)
+
+# training settings
+epochs = 10001
+logFreq = 500
+
 # init tensorboard
 writer = SummaryWriter()
 
-# ydata pos indexes (erase velocities)
-posIdx = []
-[posIdx.extend(list(range(i, i + 7))) for i in range(0, yTensor.size(1), 13)]
-
 # train the network. range = epochs
-for t in range(10001):
+for t in range(epochs + 1):
     epochLoss = 0.0
+    epoch_time = time.time()
 
-    for batch_idx, (x, y, q, zNorm) in enumerate(train_loader):
+    for batch_idx, (x, y, q, z) in enumerate(train_loader):
+
+        x.to(device), y.to(device), q.to(device), z.to(device)
         
-        # runtime start
-        batch_time = time.time()
+        # (seq. length, batch size, features) <- (batch size, seq. length, features)
+        x = torch.transpose(x, 0, 1)
+        y = torch.transpose(y, 0, 1)
+        q = torch.transpose(q, 0, 1)
+        z = torch.transpose(z, 0, 1)
 
-        x.to(device), y.to(device), zNorm.to(device)
+        # generate latent variables z_
+        zPred, z_ = compressor(z[:,:,:1001])
 
-        # autoencoder output: predict/code
-        zPred, z_ = compressor(zNorm)
-
-        # Y <- D[X + Code(z_)]
-        combinedFeatures = torch.cat((x, z_), dim=1)
-        combinedFeatures = CustomFunctions.NormalizeData(combinedFeatures)
+        # reconstruct pose ỹ
+        combinedFeatures = torch.cat((x, z_), dim=2)
+        combinedFeatures = CustomFunctions.NormalizeData(combinedFeatures, dim=2)
         yPred = decompressor(combinedFeatures)
-        
-        # forward kinematics
-        qPred = CustomFunctions.ForwardKinematics(yPred, parent)
 
-        # stats
-        print("Batch index: ", batch_idx)
-        print("Models + FK runtime:\t %s seconds" % (time.time() - batch_time))
+        # recompute forward kinematics
+        # qPred = CustomFunctions.ForwardKinematics(yPred, hierarchy)
+        # qPred = torch.cat((qPred[0].unsqueeze(0), qPred[1].unsqueeze(0)), dim=0)
 
-        # losses
-        loss_lreg = torch.nn.MSELoss()(zPred[:,:1001], torch.zeros_like(zPred[:,:1001]))
-        loss_sreg = torch.nn.L1Loss()(zPred[:,1001:], torch.zeros_like(zPred[:,1001:]))
-        loss_loc  = torch.nn.L1Loss()(yPred[:,posIdx], y[:,posIdx])
-        loss_chr  = torch.nn.L1Loss()(qPred[:,posIdx], q[:,posIdx])
-        loss_lvel = torch.nn.L1Loss()(yPred[:,7:13], y[:,7:13])
-        loss_cvel = torch.nn.L1Loss()(qPred[:,7:13], q[:,7:13])
+        #  compute latent regularization losses
+        # loss_lreg = torch.nn.MSELoss()(zPred[:,localTransforms], torch.zeros_like(zPred[:,localTransforms]))
+        # loss_sreg = torch.nn.L1Loss()(zPred[:,globalTransforms], torch.zeros_like(zPred[:,globalTransforms]))
 
-        loss = loss_lreg + loss_sreg + loss_loc + loss_lvel
+        # local & character space losses
+        loss_loc  = torch.nn.L1Loss()(yPred[:,:,localTransforms], y[:,:,localTransforms])
+        # loss_chr  = torch.nn.L1Loss()(qPred[:,:,localTransforms], q[:,:,localTransforms])
 
-        c_optimizer.zero_grad() # clear gradients for next train
-        d_optimizer.zero_grad() # clear gradients for next train
+        # local & character space velocity losses
+        loss_lvel = torch.nn.L1Loss()((yPred[0,:,rootVelocity] - yPred[1,:,rootVelocity]) / 0.017, (y[0,:,rootVelocity] - y[1,:,rootVelocity]) / 0.017)
+        # loss_cvel = torch.nn.L1Loss()((qPred[0,:,rootVelocity] - qPred[1,:,rootVelocity]) / 0.017, (q[0,:,rootVelocity] - q[1,:,rootVelocity]) / 0.017)
 
-        loss.backward()         # backpropagation, compute gradients
+        # losses sum
+        # loss = loss_loc + loss_chr + loss_lvel + loss_cvel
+        loss = loss_loc + loss_lvel
 
-        c_optimizer.step()      # apply gradients
-        d_optimizer.step()      # apply gradients
-        c_scheduler.step()      # step learning rate schedule
-        d_scheduler.step()      # step learning rate schedule
-        
-        # free variables
-        # del qPred
+        # clear gradients for next train
+        c_optimizer.zero_grad()
+        d_optimizer.zero_grad()
+
+        # backpropagation, compute gradients
+        loss.backward()
+
+        # apply gradients
+        c_optimizer.step()
+        d_optimizer.step()
+
+        # step learning rate schedule
+        c_scheduler.step()
+        d_scheduler.step()
 
         # log loss value
-        epochLoss += loss * yPred.size(0)
+        epochLoss += loss.item()
 
-        # stats
-        print("Batch runtime:\t\t %s seconds\t\t" % (time.time() - batch_time))
-        print("Memory usage:\t\t", psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
-        print()
+        # print('Batch', batch_idx, 'done.')
         
     # just printing where training is
-    # if t % 500 == 0:
-    print("Epoch loss", t, epochLoss.item())
+    if t % logFreq == 0:
+        print("Epoch:", t, "\tLoss:", epochLoss, "\tRuntime:", (time.time() - epoch_time) * logFreq / 60, "minutes")
     
     # log loss in tensorboard
-    # writer.add_scalar('Python Compressor Loss', c_epochLoss, t)
     writer.add_scalar('Python Decompressor Loss', epochLoss, t)
 
-# # saving latent variables (z)
-# with open('/home/pau1o-hs/Documents/Database/LatentVariables.txt', "w+") as f:
-#     for i in range(len(zTNorm)):
-#         zPred, z_ = compressor(zTNorm[i])
-#         np.savetxt(f, z_.cpu().detach().numpy()[None], delimiter=" ")
+# saving latent variables (z_)
+with open('database/zData.txt', "w+") as f:
+    for i in range(len(zTensor)):
+        for j in range(len(zTensor[i])):
+            zPred, z_ = compressor(zTensor[i][j])
+            np.savetxt(f, z_.cpu().detach().numpy()[None], delimiter=" ")
 
 # export compressor model
 torch.onnx.export(

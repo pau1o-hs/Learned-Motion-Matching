@@ -1,22 +1,27 @@
 # Learned Motion Matching (Work in progress)
-A neural-network-based generative model for character animation
+A neural-network-based generative model for character animation.
 
 The system takes user controls as input to automatically produce high quality motions that achieves the desired target. Implemented using Pytorch.
 
-Following Daniel Holden's paper: http://theorangeduck.com/page/learned-motion-matching#
+Following Ubisoft La-Forge [paper](https://dl.acm.org/doi/abs/10.1145/3386569.3392440).
 
 ## How it works
 Currently, this project can be separated in two parts: 
-* Unity: Extract all character animations information and store in three files: XData.txt, YData.txt and HierarchyData.txt (I should extract it using .bvh file direcly, but I'm leaving it for later);
-* Pytorch: Using above generated datas, I train the neural network models.
+* Unity: Extract all character animations information and store in three files: XData.txt, YData.txt and HierarchyData.txt;
+* Pytorch: Using above generated datas, neural network models are trained.
 
-After training, .onnx files are generated, which are exported to Unity, where I can run the neural nets inference using [Barracuda](https://medium.com/@a.abelhopereira/how-to-use-pytorch-models-in-unity-aa1e964d3374)
+After training, .onnx files are generated and exported to Unity, where the neural nets inference can be run using [Barracuda](https://medium.com/@a.abelhopereira/how-to-use-pytorch-models-in-unity-aa1e964d3374).
 
 ### XData.txt
-This file consist of C blocks, N lines and M columns. C is the number of clips; Ni is the number of frames of clip i; M is the number of features (Described in this [paper](https://theorangeduck.com/media/uploads/other_stuff/Learned_Motion_Matching.pdf), section 3:  BASIC MOTION MATCHING).
+This file consist of C blocks, F lines and M columns. C is the number of clips; Fi is the number of frames of clip i; M is the number of features (Described [here](https://dl.acm.org/doi/pdf/10.1145/3386569.3392440?casa_token=vfgWm5NZnE0AAAAA:LpyNyvcno0zSmbZETgY_q2jM3oeBGvC2QLTc-1383m4V2pnxkxR39P3XUllljGk4-91rB84Nn9fA), section 3:  BASIC MOTION MATCHING).
 Each block C is separated by a empty line. 
 
-Example: C = 2, N[0] = 3, N[1] = 4, M = 24
+Let's consider the following animation database: 
+```
+C = 2, F[0] = 3, F[1] = 4, M = 24
+```
+
+XData.txt should be in this format (illustrative values):
 ```
 -8.170939E-08 0 0 -1.634188E-07 0 0 -2.451281E-07 0 0 0 -3.773226E-05 0 1.117587E-10 4.470348E-11 -0.001392171 0 0 0 -6.705522E-11 3.352761E-11 -0.001392171 0 0 0
 -8.579486E-08 0 0 -1.675043E-07 0 0 -2.492136E-07 0 0 0 -3.773226E-05 0 1.117587E-10 4.470348E-11 -0.001392171 0 0 0 -6.705522E-11 3.352761E-11 -0.001392171 0 0 0
@@ -37,7 +42,7 @@ This file stores the character hierarchy to generate Forward Kinematcs for Pytor
 
 Let's consider the following rig hierarchy:
 ```
-        root
+       root
          |
       spine_01
         / \ 
