@@ -4,7 +4,6 @@ import random
 import torch_optimizer as optim
 import torch.utils.data as Data
 import torch.nn.functional as F
-from copy import deepcopy
 
 device = torch.device("cuda")
 
@@ -21,10 +20,10 @@ class Compressor(torch.nn.Module):
     # feed forward
     def forward(self, x):
         x = F.elu(self.hidden(x))
-        z = F.elu(self.hidden2(x))
-        x = F.elu(self.hidden3(z))
+        x = F.elu(self.hidden2(x))
+        x = F.elu(self.hidden3(x))
         x = self.predict(x)
-        return x, z
+        return x
 
 # neural network model
 class Decompressor(torch.nn.Module):
@@ -86,7 +85,7 @@ class Projector(torch.nn.Module):
         return x
 
 # override tensor dataset to get a sequence length
-class StepperDataset(Dataset):
+class CustomDataset(Dataset):
     def __init__(self, datas, window=1):
         self.datas = datas
         self.window = window

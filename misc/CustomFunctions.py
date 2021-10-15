@@ -30,32 +30,32 @@ def LoadData(filename, isStepper=False):
 def NormalizeData(data, dim=1):
     means = data.mean(dim=dim, keepdim=True)
     stds  = data.std(dim=dim, keepdim=True)
-    data = (data - means) / stds
+    normalized = (data - means) / stds
 
-    return data
+    return normalized
 
 def q_mult(a, b):
-    ax, ay, az, aw = a[:,0], a[:,1], a[:,2], a[:,3]
-    bx, by, bz, bw = b[:,0], b[:,1], b[:,2], b[:,3]
+    aw, ax, ay, az = a[:,3], a[:,0], a[:,1], a[:,2]
+    bw, bx, by, bz = b[:,3], b[:,0], b[:,1], b[:,2]
     ow = aw * bw - ax * bx - ay * by - az * bz
     ox = aw * bx + ax * bw + ay * bz - az * by
     oy = aw * by - ax * bz + ay * bw + az * bx
     oz = aw * bz + ax * by - ay * bx + az * bw
 
-    return torch.stack((ox, oy, oz, ow), -1)
+    quaternions = torch.stack((ox, oy, oz, ow), -1)
+    return torch.where(quaternions[..., 0:1] < 0, -quaternions, quaternions)
 
 def q_conjugate(a):
-    x, y, z, w = a[:,0], a[:,1], a[:,2], a[:,3]
-    return torch.stack((-x, -y, -z, w), -1)
+    w, x, y, z = a[:,3], a[:,0], a[:,1], a[:,2]
+    return torch.stack((w, -x, -y, -z), -1)
 
 def qv_mult(q1, v1):
-    q2 = torch.cat((v1, torch.zeros(q1.size(0), 1).to(device)), dim=1).to(device)
-    output = q_mult(q_mult(q1, q2), q_conjugate(q1))[:,:-1]
+    q2 = torch.cat((torch.zeros(q1.size(0), 1).to(device), v1), dim=1).to(device)
+    output = q_mult(q_mult(q1, q2), q_conjugate(q1))[:,1:]
 
     return output
 
 def ForwardKinematics(y, hierarchy):
-    # y = yPred.to(device)
     output = []
 
     for i in range(len(y)):
@@ -93,6 +93,3 @@ def ForwardKinematics(y, hierarchy):
         output.append(q.to('cuda'))
 
     return output
-
-
-

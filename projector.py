@@ -12,22 +12,24 @@ import numpy as np
 start_time = time.time()
 
 # checking if GPU is available
-print(torch.cuda.get_device_name(0)) 
+print(torch.cuda.get_device_name(0))
+print()
+
 device = torch.device("cuda")
 
 # define nn params
 model = NNModels.Projector(n_feature=24, n_hidden=512, n_hidden2=512, n_hidden3=512, n_hidden4=512, n_output=24+32).to(device)
 
 # load data
-projectorIn = CustomFunctions.LoadData("XData")
-latent = CustomFunctions.LoadData("LatentVariables")
+xData = CustomFunctions.LoadData("XData")
+zData = CustomFunctions.LoadData("ZData")
 
 # combined features (x + z)
-projectorOut = np.append(projectorIn, latent, axis=1)
+combinedFeatures = np.append(xData, zData, axis=1)
 
 # convert list to tensor
-x = torch.tensor(projectorIn, dtype=torch.float).to(device)
-y = torch.tensor(projectorOut, dtype=torch.float).to(device)
+x = torch.tensor(xData, dtype=torch.float).to(device)
+y = torch.tensor(combinedFeatures, dtype=torch.float).to(device)
 
 # normalize data
 normX = CustomFunctions.NormalizeData(x)
@@ -38,12 +40,17 @@ train = NNModels.Data.TensorDataset(normX, normY)
 train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
 optimizer, scheduler = NNModels.TrainSettings(model)
 
+# training settings
+epochs = 3000
+logFreq = 500
+
 # init tensorboard
 writer = SummaryWriter()
 
 # train the network. range = epochs
-for t in range(1):
+for t in range(epochs + 1):
     epochLoss = 0.0
+    epoch_time = time.time()
 
     for batch_idx, (data, target) in enumerate(train_loader):
 
@@ -53,14 +60,14 @@ for t in range(1):
         dataNoise = torch.zeros_like(data).to(device)
 
         for i in range(data.size(0)):
-            dataNoise[i] = data[i] + torch.randn_like(data[i]).to(device) * np.random.uniform(0.0, 1.0)
+            dataNoise[i] = data[i] + torch.randn_like(data[i]).to(device) * np.random.uniform(0.0, 0.1)
 
         # perform knn
         knnIndices = []
         newTargets = torch.zeros(target.size(0), target.size(1)).to(device)
 
         for i in range(0, len(data)):
-            dist = torch.norm(normX - dataNoise[i], dim=1, p=None)
+            dist = torch.norm(normX - dataNoise[i], dim=1)
             knn = dist.topk(1, largest=False)
             knnIndices.append(knn.indices)
 
@@ -70,8 +77,8 @@ for t in range(1):
         # feed forward
         prediction = model(dataNoise)
 
-        # MSELoss: prediction, target
-        loss_val  = torch.nn.L1Loss()(prediction, newTargets)   
+        # losses
+        loss_val  = torch.nn.MSELoss()(prediction, newTargets)   
         loss_dist = torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(newTargets[:,:24], dataNoise))   
 
         loss = loss_val + loss_dist
@@ -82,18 +89,18 @@ for t in range(1):
         scheduler.step()        # step learning rate schedule
 
         # log loss value
-        epochLoss += loss.item() * prediction.size(0)
+        epochLoss += loss.item()
     
     # just printing where training is
-    if t % 500 == 0:
-        print(t, epochLoss)
+    if t % logFreq == 0:
+        print("Epoch:", t, "\tLoss:", epochLoss, "\tRuntime:", (time.time() - epoch_time) * logFreq / 60, "minutes")
     
     # log loss in tensorboard  
-    writer.add_scalar('Python Projector Loss', epochLoss, t)
+    writer.add_scalar('Projector Loss', epochLoss, t)
 
 # export the model
 torch.onnx.export(
-    model, torch.rand(1, 24, device=device),
+    model, torch.rand(1, 1, 24, device=device),
     "onnx/projector.onnx", export_params=True,
     opset_version=9, do_constant_folding=True,
     input_names = ['x'], output_names = ['y']
