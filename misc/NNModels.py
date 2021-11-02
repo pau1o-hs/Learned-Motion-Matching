@@ -46,30 +46,33 @@ class Stepper(torch.nn.Module):
         super(Stepper, self).__init__()
         self.n_hidden = n_hidden
 
-        self.hidden  = torch.nn.LSTM(n_feature, n_hidden, 1)
-        self.hidden2  = torch.nn.LSTM(n_hidden, n_hidden, 1)
+        self.hidden  = torch.nn.LSTM(n_feature, n_hidden, 1, batch_first=False)
+        self.hidden2 = torch.nn.LSTM(n_hidden , n_hidden, 1, batch_first=False)
         self.predict = torch.nn.Linear(n_hidden, n_output)
 
     # feed forward
-    def forward(self, x, h_t, c_t): 
-        h_t2 = torch.zeros(1, x.size(1), 512, device=device).requires_grad_()
-        c_t2 = torch.zeros(1, x.size(1), 512, device=device).requires_grad_() 
+    def forward(self, x): 
+        h_t = torch.zeros(1, x.size(1), 512, device=device).requires_grad_()
+        c_t = torch.zeros(1, x.size(1), 512, device=device).requires_grad_() 
 
         output, (h_t, c_t) = self.hidden(x, (h_t, c_t))
         output = F.relu(output)
+
+        h_t2 = torch.zeros(1, x.size(1), 512, device=device).requires_grad_()
+        c_t2 = torch.zeros(1, x.size(1), 512, device=device).requires_grad_() 
 
         output, (h_t2, c_t2) = self.hidden2(output, (h_t2, c_t2))
         output = F.relu(output)
 
         output = self.predict(output)
-        return output, h_t2, c_t2
+        return output
 
 # neural network model
 class Projector(torch.nn.Module):
     # nn layers shape
     def __init__(self, n_feature, n_hidden, n_hidden2, n_hidden3, n_hidden4, n_output):
         super(Projector, self).__init__()
-        self.hidden = torch.nn.Linear(n_feature, n_hidden)  
+        self.hidden  = torch.nn.Linear(n_feature, n_hidden)  
         self.hidden2 = torch.nn.Linear(n_hidden, n_hidden2) 
         self.hidden3 = torch.nn.Linear(n_hidden2, n_hidden3)
         self.hidden4 = torch.nn.Linear(n_hidden3, n_hidden4)

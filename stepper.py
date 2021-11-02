@@ -40,7 +40,7 @@ train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
 optimizer, scheduler = NNModels.TrainSettings(model)
 
 # training settings
-epochs = 10000
+epochs = 5000
 logFreq = 500
 
 # init tensorboard
@@ -60,15 +60,15 @@ for t in range(epochs + 1):
         target  = torch.transpose(target, 0, 1)
         n_batch = data.size(1)
 
-        h_t = torch.zeros(1, n_batch, 512, device=device).requires_grad_()
-        c_t = torch.zeros(1, n_batch, 512, device=device).requires_grad_()
+        # h_t = torch.zeros(1, n_batch, 512, device=device).requires_grad_()
+        # c_t = torch.zeros(1, n_batch, 512, device=device).requires_grad_()
 
         # predict x~ and z~ over a window of s frames
-        prediction, h_t, c_t = model(data, h_t, c_t)
+        prediction= model(data)
 
         # losses
         loss_val = torch.nn.L1Loss()(prediction, target) 
-        loss_vel = torch.nn.L1Loss()((prediction[:19] - prediction[1:]) / 0.017, (target[:19] - target[1:]) / 0.017)
+        loss_vel = torch.nn.L1Loss()((prediction[1:] - prediction[:19]) / 0.017, (target[1:] - target[:19]) / 0.017)
 
         loss = loss_val + loss_vel
 
@@ -94,10 +94,10 @@ c_t = torch.rand(1, 1, 512, device=device)
 
 # export the model
 torch.onnx.export(
-    model, (x, h_t, c_t),
+    model, x,
     "onnx/stepper.onnx", export_params=True,
     opset_version=9, do_constant_folding=True,
-    input_names = ['x', 'h0', 'c0'], output_names =['y', 'hn', 'cn']
+    input_names = ['x'], output_names =['y']
 )
 
 # runtime end

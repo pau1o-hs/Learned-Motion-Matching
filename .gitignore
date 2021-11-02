@@ -1,3 +1,3 @@
-runs/*
-database/*
-misc/__pycache__/*
+Pytorch/runs/*
+Pytorch/database/*
+Pytorch/misc/__pycache__/*

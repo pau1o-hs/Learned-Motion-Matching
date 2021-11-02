@@ -34,19 +34,27 @@ def NormalizeData(data, dim=1):
 
     return normalized
 
+def normalize(v, tolerance=0.00001):
+    mag2 = sum(n * n for n in v)
+    if abs(mag2 - 1.0) > tolerance:
+        mag = (mag2)**(0.5)
+        v = tuple(n / mag for n in v)
+    return v
+
 def q_mult(a, b):
-    aw, ax, ay, az = a[:,3], a[:,0], a[:,1], a[:,2]
-    bw, bx, by, bz = b[:,3], b[:,0], b[:,1], b[:,2]
+    aw, ax, ay, az = torch.unbind(a, -1)
+    bw, bx, by, bz = torch.unbind(b, -1)
     ow = aw * bw - ax * bx - ay * by - az * bz
     ox = aw * bx + ax * bw + ay * bz - az * by
     oy = aw * by - ax * bz + ay * bw + az * bx
     oz = aw * bz + ax * by - ay * bx + az * bw
 
-    quaternions = torch.stack((ox, oy, oz, ow), -1)
-    return torch.where(quaternions[..., 0:1] < 0, -quaternions, quaternions)
+    return torch.stack((ow, ox, oy, oz), -1)
+    # quaternions = torch.stack((ow, ox, oy, oz), -1)
+    # return torch.where(quaternions[..., 0:1] < 0, -quaternions, quaternions)
 
 def q_conjugate(a):
-    w, x, y, z = a[:,3], a[:,0], a[:,1], a[:,2]
+    w, x, y, z = a[:,0], a[:,1], a[:,2], a[:,3]
     return torch.stack((w, -x, -y, -z), -1)
 
 def qv_mult(q1, v1):
@@ -77,7 +85,7 @@ def ForwardKinematics(y, hierarchy):
 
             # qr
             multComponentB = q_mult(q[:,parent+3 : parent+7], yr)
-            qr                    = q[:,parent+3 : parent+7] + multComponentB
+            qr                    = multComponentB
 
             # qrVel
             multComponentC = qv_mult(q[:,parent+3  : parent+7], yrVel)
@@ -89,7 +97,7 @@ def ForwardKinematics(y, hierarchy):
 
             bone += 1
             q = torch.cat((q, qt, qr, qtVel, qrVel), dim=1).to(device)
-        
+
         output.append(q.to('cuda'))
 
     return output

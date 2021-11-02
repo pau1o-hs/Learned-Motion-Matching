@@ -41,7 +41,7 @@ train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
 optimizer, scheduler = NNModels.TrainSettings(model)
 
 # training settings
-epochs = 3000
+epochs = 5000
 logFreq = 500
 
 # init tensorboard
@@ -57,31 +57,32 @@ for t in range(epochs + 1):
         data.to(device), target.to(device)
 
         # generate gaussian noise
-        dataNoise = torch.zeros_like(data).to(device)
-
+        # dataNoise = data + torch.randn_like(data) * torch.tensor(np.random.uniform(-0.1, 0.1, (data.size(0), data.size(1))), dtype=torch.float, device=device)
+        dataNoise = torch.zeros_like(data)
         for i in range(data.size(0)):
-            dataNoise[i] = data[i] + torch.randn_like(data[i]).to(device) * np.random.uniform(0.0, 0.1)
+            dataNoise[i] = data[i] + torch.randn_like(data[i]) * np.random.uniform(0, 1)
+
+        dataNoise = CustomFunctions.NormalizeData(dataNoise)
 
         # perform knn
         knnIndices = []
-        newTargets = torch.zeros(target.size(0), target.size(1)).to(device)
+        newTargets = torch.empty(data.size(0), 0).to(device)
 
-        for i in range(0, len(data)):
+        for i in range(data.size(0)):
             dist = torch.norm(normX - dataNoise[i], dim=1)
             knn = dist.topk(1, largest=False)
-            knnIndices.append(knn.indices)
+            knnIndices.append(knn.indices.tolist()[0])
 
-        for i in range(0, len(data)):
-            newTargets[i] = normY[knnIndices[i]]
+        newTargets = torch.cat((newTargets, normY[knnIndices]), dim=1)
 
         # feed forward
         prediction = model(dataNoise)
 
         # losses
-        loss_val  = torch.nn.MSELoss()(prediction, newTargets)   
+        loss_val  = torch.nn.L1Loss()(prediction, newTargets)   
         loss_dist = torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(newTargets[:,:24], dataNoise))   
 
-        loss = loss_val + loss_dist
+        loss = loss_val
 
         optimizer.zero_grad()   # clear gradients for next train
         loss.backward()         # backpropagation, compute gradients
