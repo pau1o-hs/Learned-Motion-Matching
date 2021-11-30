@@ -1,4 +1,7 @@
 # Learned Motion Matching (Work in progress)
+
+![LMM](https://user-images.githubusercontent.com/55563608/139554887-036a45a1-d88e-4fdb-a9d7-d6592f2738c9.gif)
+
 A neural-network-based generative model for character animation.
 
 The system takes user controls as input to automatically produce high quality motions that achieves the desired target. Implemented using Pytorch.
@@ -59,8 +62,7 @@ HierarchyData.txt should be:
 ```
 
 ## Roadmap
-* Fix the the neural network losses (currently);
-* Extract character animations information using .bvh, without Unity.
+You can download the Unity project and check the updates right [here](https://github.com/pau1o-hs/Learned-Motion-Matching/releases)
 
 ## Note
 I've already managed to make the system work, it's just not perfect yet. Warning that I'm still just an undergraduate, I'm not sure about anything hahahaha.
