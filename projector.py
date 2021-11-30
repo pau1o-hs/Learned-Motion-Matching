@@ -88,12 +88,12 @@ for t in range(epochs + 1):
         prediction = model(dataNoise)
 
         # losses
-        loss_xval = 1.10 * torch.nn.L1Loss()(prediction[:,:24], newTargets[:,:24])  
-        loss_zval = 1.00 * torch.nn.L1Loss()(prediction[:,24:], newTargets[:,24:])  
+        loss_xval = 0.50 * torch.nn.L1Loss()(prediction[:,:24], newTargets[:,:24])  
+        loss_zval = 5.00 * torch.nn.L1Loss()(prediction[:,24:], newTargets[:,24:])  
         # loss_dist = 0.02 * torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(xk, dataNoise))  
-        loss_dist = 0.02 * torch.nn.MSELoss()(xk, dataNoise)  
+        loss_dist = 2.00 * torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(xk, dataNoise))
 
-        loss = loss_xval + loss_zval
+        loss = loss_xval + loss_zval + loss_dist
 
         optimizer.zero_grad()   # clear gradients for next train
         loss.backward()         # backpropagation, compute gradients
