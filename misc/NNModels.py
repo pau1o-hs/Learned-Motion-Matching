@@ -42,30 +42,18 @@ class Decompressor(torch.nn.Module):
 # neural network model
 class Stepper(torch.nn.Module):
     # nn layers shape
-    def __init__(self, n_feature, n_hidden, n_output):
+    def __init__(self, n_feature, n_hidden, n_hidden2, n_output):
         super(Stepper, self).__init__()
-        self.n_hidden = n_hidden
-
-        self.hidden  = torch.nn.LSTM(n_feature, n_hidden, 1, batch_first=False)
-        self.hidden2 = torch.nn.LSTM(n_hidden , n_hidden, 1, batch_first=False)
-        self.predict = torch.nn.Linear(n_hidden, n_output)
+        self.hidden   = torch.nn.Linear(n_feature, n_hidden)
+        self.hidden2  = torch.nn.Linear(n_hidden, n_hidden2)
+        self.predict  = torch.nn.Linear(n_hidden2, n_output)
 
     # feed forward
-    def forward(self, x): 
-        h_t = torch.zeros(1, x.size(1), 512, device=device).requires_grad_()
-        c_t = torch.zeros(1, x.size(1), 512, device=device).requires_grad_() 
-
-        output, (h_t, c_t) = self.hidden(x, (h_t, c_t))
-        output = F.relu(output)
-
-        h_t2 = torch.zeros(1, x.size(1), 512, device=device).requires_grad_()
-        c_t2 = torch.zeros(1, x.size(1), 512, device=device).requires_grad_() 
-
-        output, (h_t2, c_t2) = self.hidden2(output, (h_t2, c_t2))
-        output = F.relu(output)
-
-        output = self.predict(output)
-        return output
+    def forward(self, x):
+        x = F.relu(self.hidden(x)) 
+        x = F.relu(self.hidden2(x))
+        x = self.predict(x)
+        return x
 
 # neural network model
 class Projector(torch.nn.Module):

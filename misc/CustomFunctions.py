@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 device = torch.device("cpu")
 
@@ -28,18 +29,86 @@ def LoadData(filename, isStepper=False):
     return data
 
 def NormalizeData(data, dim=1):
-    means = data.mean(dim=dim, keepdim=True)
-    stds  = data.std(dim=dim, keepdim=True)
-    normalized = (data - means) / stds
+    xMin = torch.empty(0, data[0].size(1), device='cuda')
+    xMax = torch.empty(0, data[0].size(1), device='cuda')
+    normalized = []
+
+    for i in range(len(data)):
+        xMin = torch.cat((xMin, torch.min(data[i], 0).values.unsqueeze(0)), dim=0)
+        xMax = torch.cat((xMax, torch.max(data[i], 0).values.unsqueeze(0)), dim=0)
+    
+    xMin = torch.min(xMin, 0).values
+    xMax = torch.max(xMax, 0).values
+    # print(xMax)
+
+    # normalization
+    for i in range(len(data)):
+        normalized.append((data[i] - xMin) / (xMax - xMin))
 
     return normalized
 
-def normalize(v, tolerance=0.00001):
-    mag2 = sum(n * n for n in v)
-    if abs(mag2 - 1.0) > tolerance:
-        mag = (mag2)**(0.5)
-        v = tuple(n / mag for n in v)
-    return v
+def StandardizeData(data, dim=1):
+    mean = 0
+    std = 0
+    count = 0
+    normalized = []
+
+    # mean
+    for i in range(len(data)):
+        mean = mean + data[i].sum(dim=dim)
+        count = count + data[i].size(0)
+
+    mean = mean / count
+    
+    # std
+    for i in range(len(data)):
+        std = std + ((data[i] - mean) ** 2).sum(dim=dim)
+    
+    std = (std / count) ** 0.5
+
+    # standardization
+    for i in range(len(data)):
+        normalized.append((data[i] - mean) / (std + 0.0001))
+
+    return normalized
+
+def quaternion_rotation_matrix(Q):
+    """
+    Covert a quaternion into a full three-dimensional rotation matrix.
+ 
+    Input
+    :param Q: A 4 element array representing the quaternion (q0,q1,q2,q3) 
+ 
+    Output
+    :return: A 3x3 element matrix representing the full 3D rotation matrix. 
+             This rotation matrix converts a point in the local reference 
+             frame to a point in the global reference frame.
+    """
+    # Extract the values from Q
+    q0 = Q[:,0]
+    q1 = Q[:,1]
+    q2 = Q[:,2]
+    q3 = Q[:,3]
+     
+    # First row of the rotation matrix
+    r00 = 2 * (q0 * q0 + q1 * q1) - 1
+    r01 = 2 * (q1 * q2 - q0 * q3)
+    r02 = 2 * (q1 * q3 + q0 * q2)
+     
+    # Second row of the rotation matrix
+    r10 = 2 * (q1 * q2 + q0 * q3)
+    r11 = 2 * (q0 * q0 + q2 * q2) - 1
+    r12 = 2 * (q2 * q3 - q0 * q1)
+     
+    # Third row of the rotation matrix
+    r20 = 2 * (q1 * q3 - q0 * q2)
+    r21 = 2 * (q2 * q3 + q0 * q1)
+    r22 = 2 * (q0 * q0 + q3 * q3) - 1
+
+    # 3x3 rotation matrix
+    rot_matrix = torch.stack((r00, r01, r02, r10, r11, r12, r20, r21, r22), 1)
+
+    return rot_matrix
 
 def q_mult(a, b):
     aw, ax, ay, az = torch.unbind(a, -1)

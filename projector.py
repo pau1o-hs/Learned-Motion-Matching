@@ -21,27 +21,33 @@ device = torch.device("cuda")
 model = NNModels.Projector(n_feature=24, n_hidden=512, n_hidden2=512, n_hidden3=512, n_hidden4=512, n_output=24+32).to(device)
 
 # load data
-xData = CustomFunctions.LoadData("XData")
-zData = CustomFunctions.LoadData("ZData")
+xData = CustomFunctions.LoadData("XData", False)
+zData = CustomFunctions.LoadData("ZData", False)
+
+# list of tensors
+xTensor = []
+zTensor = []
+combinedFeatures = []
+
+xTensor = CustomFunctions.StandardizeData([torch.tensor(xData, dtype=torch.float).to(device)], dim=0)
+zTensor.append(torch.tensor(zData, dtype=torch.float).to(device))
 
 # combined features (x + z)
-combinedFeatures = np.append(xData, zData, axis=1)
+combinedFeatures.append(torch.cat((xTensor[0], zTensor[0]), dim=1))
 
-# convert list to tensor
-x = torch.tensor(xData, dtype=torch.float).to(device)
-y = torch.tensor(combinedFeatures, dtype=torch.float).to(device)
-
-# normalize data
-normX = CustomFunctions.NormalizeData(x)
-normY = CustomFunctions.NormalizeData(y)
+# relevant dataset indexes
+xVal = [list(range(0, 9)) , list(range(12, 15)), list(range(18, 21))]
+xTrj = [list(range(0, 9))]
+xVal = sum(xVal, [])
+xTrj = sum(xTrj, [])
 
 # dataloader settings for training
-train = NNModels.Data.TensorDataset(normX, normY)
+train = NNModels.Data.TensorDataset(xTensor[0], combinedFeatures[0])
 train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
 optimizer, scheduler = NNModels.TrainSettings(model)
 
 # training settings
-epochs = 5000
+epochs = 1000
 logFreq = 500
 
 # init tensorboard
@@ -50,6 +56,9 @@ writer = SummaryWriter()
 # train the network. range = epochs
 for t in range(epochs + 1):
     epochLoss = 0.0
+    xval = 0.0
+    zval = 0.0
+    dist = 0.0
     epoch_time = time.time()
 
     for batch_idx, (data, target) in enumerate(train_loader):
@@ -57,32 +66,34 @@ for t in range(epochs + 1):
         data.to(device), target.to(device)
 
         # generate gaussian noise
-        # dataNoise = data + torch.randn_like(data) * torch.tensor(np.random.uniform(-0.1, 0.1, (data.size(0), data.size(1))), dtype=torch.float, device=device)
         dataNoise = torch.zeros_like(data)
         for i in range(data.size(0)):
-            dataNoise[i] = data[i] + torch.randn_like(data[i]) * np.random.uniform(0, 1)
-
-        dataNoise = CustomFunctions.NormalizeData(dataNoise)
+            dataNoise[i] = data[i] + (np.random.uniform(0.0, 1.0) * torch.randn_like(data[i]))
 
         # perform knn
         knnIndices = []
-        newTargets = torch.empty(data.size(0), 0).to(device)
 
         for i in range(data.size(0)):
-            dist = torch.norm(normX - dataNoise[i], dim=1)
-            knn = dist.topk(1, largest=False)
+            diff = torch.norm(xTensor[0] - dataNoise[i], dim=1, p=None)
+            knn = diff.topk(1, largest=False)
             knnIndices.append(knn.indices.tolist()[0])
+        
+        xk          = torch.empty(data.size(0), 0).to(device)
+        newTargets  = torch.empty(data.size(0), 0).to(device)
 
-        newTargets = torch.cat((newTargets, normY[knnIndices]), dim=1)
+        xk          = torch.cat((xk, xTensor[0][knnIndices]), dim=1)
+        newTargets  = torch.cat((newTargets, combinedFeatures[0][knnIndices]), dim=1)
 
         # feed forward
         prediction = model(dataNoise)
 
         # losses
-        loss_val  = torch.nn.L1Loss()(prediction, newTargets)   
-        loss_dist = torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(newTargets[:,:24], dataNoise))   
+        loss_xval = 1.10 * torch.nn.L1Loss()(prediction[:,:24], newTargets[:,:24])  
+        loss_zval = 1.00 * torch.nn.L1Loss()(prediction[:,24:], newTargets[:,24:])  
+        # loss_dist = 0.02 * torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(xk, dataNoise))  
+        loss_dist = 0.02 * torch.nn.MSELoss()(xk, dataNoise)  
 
-        loss = loss_val
+        loss = loss_xval + loss_zval
 
         optimizer.zero_grad()   # clear gradients for next train
         loss.backward()         # backpropagation, compute gradients
@@ -91,11 +102,14 @@ for t in range(epochs + 1):
 
         # log loss value
         epochLoss += loss.item()
+        xval += loss_xval.item()
+        zval += loss_zval.item()
+        dist += loss_dist.item()
     
     # just printing where training is
     if t % logFreq == 0:
         print("Epoch:", t, "\tLoss:", epochLoss, "\tRuntime:", (time.time() - epoch_time) * logFreq / 60, "minutes")
-    
+        print(xval, zval, dist)
     # log loss in tensorboard  
     writer.add_scalar('Projector Loss', epochLoss, t)
 
