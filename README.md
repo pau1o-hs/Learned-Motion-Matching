@@ -8,7 +8,17 @@ The system takes user controls as input to automatically produce high quality mo
 
 Following Ubisoft La-Forge [paper](https://dl.acm.org/doi/abs/10.1145/3386569.3392440).
 
+<!-- ## Table of contents
+- [How it works](#how-it-works)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Important notes](#important-notes) -->
+
 ## How it works
+
+<details>
+	<summary>---------</summary>
+       
 Currently, this project can be separated in two parts: 
 * Unity: Extract all character animations information and store in three files: XData.txt, YData.txt and HierarchyData.txt;
 * Pytorch: Using above generated datas, neural network models are trained.
@@ -60,9 +70,49 @@ HierarchyData.txt should be:
 1
 
 ```
+</details>
 
-## Roadmap
-You can download the Unity project and check the updates right [here](https://github.com/pau1o-hs/Learned-Motion-Matching/releases)
+## Installation
+<details>
+	<summary>---------</summary>
 
-## Note
-I've already managed to make the system work, it's just not perfect yet. Warning that I'm still just an undergraduate, I'm not sure about anything hahahaha.
+- Clone this repository
+- Download the Unity sample project <a href="https://github.com/pau1o-hs/Learned-Motion-Matching/releases">here</a>.
+
+\* Install the **Barracuda** package inside of Unity’s Package Manager (Window->Package Manager)
+</details>
+
+## Usage
+<details>
+	<summary>---------</summary>
+       
+Currently, for use this system, the user needs to do the following steps:
+       
+#### Unity
+1. Add the desired animation clips in the character Animator tab;
+2. Add and setup the Gameplay script to the desired character;
+3. Hit the "Extract data from animator" button, located the Inspector of Gameplay script;
+4. Export "XData", "YData" and "HierarchyData" previously generated to Pytorch "/database" folder;
+
+#### Pytorch
+5. Run decompressor.py, followed by stepper.py and projector.py (this last two can be run in parallel);
+6. Export the ONNX files generated in Pytorch environment to Unity's "/Assets/Motion Matching/ONNX " folder;
+7. Export the "QData.txt" file generated in Pytorch environment to Unity's "/Assets/Motion Matching/Database" folder;
+
+#### Unity
+8. Hit "Play" button and play.
+
+![githubimg1](https://user-images.githubusercontent.com/55563608/139554182-2e4c9f23-ff1c-4ea4-971b-402f1fd7c197.png)
+  
+</details>
+
+## Important notes
+
+<details>
+	<summary>---------</summary>
+If you try to use it with your own character and animations, there are some details:
+<br>
+       
+-  All your character's bones scales must be (1, 1, 1) to ForwardKinematics method works properly;
+-  Every animation clip must have at least 60 frames;
+-  The last 60 frames of every animation clip must have the same trajectory directions, because as input to the neural networks, are passed the **future** 60 frames.
