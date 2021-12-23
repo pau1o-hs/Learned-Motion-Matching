@@ -69,6 +69,7 @@ for t in range(epochs + 1):
         dataNoise = torch.zeros_like(data)
         for i in range(data.size(0)):
             dataNoise[i] = data[i] + (np.random.uniform(0.0, 1.0) * torch.randn_like(data[i]))
+            # dataNoise[i] = data[i] + (np.random.uniform(-1.0, 1.0) * torch.rand_like(data[i]))
 
         # perform knn
         knnIndices = []
@@ -90,8 +91,7 @@ for t in range(epochs + 1):
         # losses
         loss_xval = 0.50 * torch.nn.L1Loss()(prediction[:,:24], newTargets[:,:24])  
         loss_zval = 5.00 * torch.nn.L1Loss()(prediction[:,24:], newTargets[:,24:])  
-        # loss_dist = 0.02 * torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(xk, dataNoise))  
-        loss_dist = 2.00 * torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(xk, dataNoise))
+        loss_dist = 0.00 * torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(xk, dataNoise))
 
         loss = loss_xval + loss_zval + loss_dist
 

@@ -38,6 +38,7 @@ for i in range(len(xData)):
 # compute forward kinematics
 qTensor = CustomFunctions.ForwardKinematics(yTensor, hierarchy)
 
+# calculate the rotation matrix
 for i in range(len(yTensor)):
     yInfo = torch.empty(yTensor[i].size(0), 0).to(device)
     qInfo = torch.empty(qTensor[i].size(0), 0).to(device)
@@ -50,7 +51,7 @@ for i in range(len(yTensor)):
     qFinal.append(qInfo)
 
 for i in range(len(yData)):
-    pTensor.append(torch.cat((yTensor[i], qTensor[i]), dim=1))
+    pTensor.append(torch.cat((yFinal[i], qFinal[i]), dim=1))
 
 xTensor = CustomFunctions.StandardizeData(xTensor, dim=0)
 pNorm   = CustomFunctions.StandardizeData(pTensor, dim=0)
@@ -61,9 +62,9 @@ lVelocities = []
 sTransforms = []
 sVelocities = []
 
-[lTransforms.extend(list(range(i + 00, i + 7))) for i in range(0, yTensor[0].size(1), 13)]
+[lTransforms.extend(list(range(i + 0, i + 7)))  for i in range(0, yTensor[0].size(1), 13)]
 [lVelocities.extend(list(range(i + 7, i + 13))) for i in range(0, yTensor[0].size(1), 13)]
-[sTransforms.extend(list(range(i + 00, i + 7))) for i in range(yTensor[0].size(1), pTensor[0].size(1), 13)]
+[sTransforms.extend(list(range(i + 0, i + 7)))  for i in range(yTensor[0].size(1), pTensor[0].size(1), 13)]
 [sVelocities.extend(list(range(i + 7, i + 13))) for i in range(yTensor[0].size(1), pTensor[0].size(1), 13)]
 
 # define nn params
@@ -71,14 +72,14 @@ compressor   = NNModels.Compressor(n_feature=yTensor[0].size(1) * 2, n_hidden=51
 decompressor = NNModels.Decompressor(n_feature=24+32, n_hidden=512, n_output=yTensor[0].size(1)).to(device)
 
 # dataloader settings
-train = NNModels.CustomDataset((xTensor, yTensor, qTensor, pNorm), window=2)
+train = NNModels.CustomDataset((xTensor, yFinal, qFinal, pNorm), window=2)
 train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
 c_optimizer, c_scheduler = NNModels.TrainSettings(compressor)
 d_optimizer, d_scheduler = NNModels.TrainSettings(decompressor)
 
 # training settings
-epochs = 1000
-logFreq = 500
+epochs = 200
+logFreq = 10
 
 # init tensorboard
 writer = SummaryWriter()
@@ -96,6 +97,7 @@ for t in range(epochs + 1):
 
     epoch_time = time.time()
 
+    # batch
     for batch_idx, (x, y, q, p) in enumerate(train_loader):
 
         x.to(device), y.to(device), q.to(device), p.to(device)
@@ -106,35 +108,30 @@ for t in range(epochs + 1):
         q = torch.transpose(q, 0, 1)
         p = torch.transpose(p, 0, 1)
 
-        # y += np.random.normal(y.mean(dim=2), y.std(dim=2), y.shape(0), y.shape(1))
-
         # generate latent variables Z
-        # p = CustomFunctions.NormalizeData(torch.cat((y, q), dim=2), dim=1)
         zPred = compressor(p)
-        
+
         # reconstruct pose Y
         f = torch.cat((x, zPred), dim=2)
         yPred = decompressor(f)
 
         # recompute forward kinematics
-        # qPred = torch.stack(CustomFunctions.ForwardKinematics(yPred, hierarchy), dim=0)
-
-        #  compute latent regularization losses
-        loss_lreg = 0.02000 * torch.nn.MSELoss()(zPred, torch.zeros_like(zPred))
-        loss_sreg = 0.00100 * torch.nn.L1Loss() (zPred, torch.zeros_like(zPred))
-        loss_vreg = 0.00500 * torch.nn.L1Loss() ((zPred[1] - zPred[0]) / 0.017, torch.zeros_like(zPred[0]))
+        qPred = torch.stack(CustomFunctions.ForwardKinematics(yPred, hierarchy), dim=0)
+        
+        # compute latent regularization losses
+        loss_lreg = 0.10000 * torch.nn.MSELoss()(zPred[:,:,0:10], torch.zeros_like(zPred[:,:,0:10]))
+        loss_sreg = 0.00000 * torch.nn.L1Loss() (zPred[:,:,10:20], torch.zeros_like(zPred[:,:,10:20]))
+        loss_vreg = 0.00000 * torch.nn.L1Loss() ((zPred[1,:,20:32] - zPred[0,:,20:32]) / 0.017, torch.zeros_like(zPred[0,:,20:32]))
 
         # local & character space losses
-        loss_loc  = 30.0000 * torch.nn.L1Loss()(yPred[:,:,lTransforms], y[:,:,lTransforms])
-        loss_lvel = 0.00100 * torch.nn.L1Loss()(yPred[:,:,lVelocities], y[:,:,lVelocities])
+        loss_loc  = 6.00000 * torch.nn.L1Loss()(yPred[:,:,lTransforms], y[:,:,lTransforms])
+        loss_chr  = 1.00000 * torch.nn.L1Loss()(qPred[:,:,lTransforms], q[:,:,lTransforms])
 
         # local & character space velocity losses
-        # loss_chr  = 30.0000 * torch.nn.L1Loss()(qPred[:,:,lTransforms], q[:,:,lTransforms])
-        # loss_cvel = 0.00100 * torch.nn.L1Loss()(qPred[:,:,lVelocities], q[:,:,lVelocities])
+        loss_lvel = 0.1 * torch.nn.L1Loss()(yPred[1,:,7:13] - yPred[0,:,7:13] / 0.017, y[1,:,7:13] - y[0,:,7:13] / 0.017)
+        loss_cvel = 0.1 * torch.nn.L1Loss()(qPred[1,:,7:13] - qPred[0,:,7:13] / 0.017, q[1,:,7:13] - q[0,:,7:13] / 0.017)
 
-        loss = loss_lreg + loss_sreg + loss_vreg + loss_loc + loss_lvel
-        # loss = loss_lreg + loss_loc
-        # loss = loss_loc
+        loss = loss_lreg + loss_sreg + loss_vreg + loss_loc + loss_chr + loss_lvel + loss_cvel
 
         # clear gradients for next train
         c_optimizer.zero_grad()
@@ -152,19 +149,19 @@ for t in range(epochs + 1):
         d_scheduler.step()
 
         # log loss value
-        epochLoss += loss_loc.item()
+        epochLoss += loss.item()
         lreg += loss_lreg.item()
         sreg += loss_sreg.item()
         vreg += loss_vreg.item()
         lloc += loss_loc.item()
+        lchr += loss_chr.item()
         lvel += loss_lvel.item()
-        lchr += loss_loc.item()
-        cvel += loss_lvel.item()
+        cvel += loss_cvel.item()
 
     # just printing where training is
     if t % logFreq == 0:
         print("Epoch:", t, "\tLoss:", epochLoss, "\tRuntime:", (time.time() - epoch_time) * logFreq / 60, "minutes")
-        print(lreg, sreg, vreg, lloc, lvel, lchr, cvel)
+        print(lreg, sreg, vreg, lloc, lchr, lvel, cvel)
     # log loss in tensorboard
     writer.add_scalar('Decompressor Loss', epochLoss, t)
 

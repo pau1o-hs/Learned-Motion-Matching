@@ -91,11 +91,11 @@ for t in range(epochs + 1):
         
         # losses
         loss_xval = 2.000 * torch.nn.L1Loss()(pred[:,:,:24], target[:,:,:24])
-        loss_zval = 1.000 * torch.nn.L1Loss()(pred[:,:,24:], target[:,:,24:])
+        loss_zval = 3.000 * torch.nn.L1Loss()(pred[:,:,24:], target[:,:,24:])
 
         # loss_xvel = 0.050 * torch.nn.L1Loss()(pred[:,:,xVel], target[:,:,xVel])
-        loss_xvel = 0.050 * torch.nn.L1Loss()((pred[1:,:,:24] - pred[:19,:,:24]) / 0.017, (target[1:,:,:24] - target[:19,:,:24]) / 0.017)
-        loss_zvel = 0.015 * torch.nn.L1Loss()((pred[1:,:,24:] - pred[:19,:,24:]) / 0.017, (target[1:,:,24:] - target[:19,:,24:]) / 0.017)
+        loss_xvel = 0.000 * torch.nn.L1Loss()((pred[1:,:,:24] - pred[:19,:,:24]) / 0.017, (target[1:,:,:24] - target[:19,:,:24]) / 0.017)
+        loss_zvel = 0.000 * torch.nn.L1Loss()((pred[1:,:,24:] - pred[:19,:,24:]) / 0.017, (target[1:,:,24:] - target[:19,:,24:]) / 0.017)
 
         loss = loss_xval + loss_zval + loss_xvel + loss_zvel
         # loss = loss_xval + loss_zval

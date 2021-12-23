@@ -64,11 +64,16 @@ def StandardizeData(data, dim=1):
     for i in range(len(data)):
         std = std + ((data[i] - mean) ** 2).sum(dim=dim)
     
-    std = (std / count) ** 0.5
+    std = ((std / count) + 0.001) ** 0.5
+    
+    # for i in range(len(std)): 
+        # if std[i] == 0:
+            # std[i] = 1
+            # if data[0][0,i] == mean[i]: print(i)
 
     # standardization
     for i in range(len(data)):
-        normalized.append((data[i] - mean) / (std + 0.0001))
+        normalized.append((data[i] - mean) / (std))
 
     return normalized
 
@@ -150,7 +155,11 @@ def ForwardKinematics(y, hierarchy):
 
             # qt
             multComponentA = qv_mult(q[:,parent+3 : parent+7], yt)
-            qt                     = q[:,parent+0 : parent+3] + multComponentA
+
+            if parent != 0:
+                qt = q[:,parent+0 : parent+3] + multComponentA
+            else:
+                qt = multComponentA
 
             # qr
             multComponentB = q_mult(q[:,parent+3 : parent+7], yr)
