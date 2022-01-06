@@ -185,6 +185,7 @@ for t in range(epochs + 1):
     c_optimizer.step()
     d_optimizer.step()
 
+    # step learning rate schedule
     if t % 1000 == 0:
         c_scheduler.step()
         d_scheduler.step()

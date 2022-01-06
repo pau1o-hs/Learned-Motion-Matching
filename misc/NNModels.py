@@ -43,11 +43,11 @@ class Decompressor(torch.nn.Module):
 # neural network model
 class Stepper(torch.nn.Module):
     # nn layers shape
-    def __init__(self, input_size, output_size, hidden_size=516):
+    def __init__(self, input_size, hidden_size=516):
         super(Stepper, self).__init__()
         self.layer1  = torch.nn.Linear(input_size, hidden_size)
         self.layer2  = torch.nn.Linear(hidden_size, hidden_size)
-        self.predict = torch.nn.Linear(hidden_size, output_size)
+        self.predict = torch.nn.Linear(hidden_size, input_size)
 
     # feed forward
     def forward(self, x):
