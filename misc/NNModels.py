@@ -1,6 +1,7 @@
 from torch.utils.data.dataset import Dataset
 import torch
 import random
+import numpy as np
 import torch_optimizer as optim
 import torch.utils.data as Data
 import torch.nn.functional as F
@@ -10,104 +11,98 @@ device = torch.device("cuda")
 # neural network model
 class Compressor(torch.nn.Module):
     # nn layers shape
-    def __init__(self, n_feature, n_hidden, n_hidden2, n_hidden3, n_output):
+    def __init__(self, input_size, output_size, hidden_size=516):
         super(Compressor, self).__init__()
-        self.hidden = torch.nn.Linear(n_feature, n_hidden) 
-        self.hidden2 = torch.nn.Linear(n_hidden, n_hidden2)
-        self.hidden3 = torch.nn.Linear(n_hidden2, n_hidden3)
-        self.predict = torch.nn.Linear(n_hidden3, n_output)
+        self.layer1 = torch.nn.Linear(input_size, hidden_size) 
+        self.layer2 = torch.nn.Linear(hidden_size, hidden_size)
+        self.layer3 = torch.nn.Linear(hidden_size, hidden_size)
+        self.predict = torch.nn.Linear(hidden_size, output_size)
 
     # feed forward
     def forward(self, x):
-        x = F.elu(self.hidden(x))
-        x = F.elu(self.hidden2(x))
-        x = F.elu(self.hidden3(x))
+        x = F.elu(self.layer1(x))
+        x = F.elu(self.layer2(x))
+        x = F.elu(self.layer3(x))
         x = self.predict(x)
         return x
 
 # neural network model
 class Decompressor(torch.nn.Module):
     # nn layers shape
-    def __init__(self, n_feature, n_hidden, n_output):
+    def __init__(self, input_size, output_size, hidden_size=516):
         super(Decompressor, self).__init__()
-        self.hidden = torch.nn.Linear(n_feature, n_hidden)
-        self.predict = torch.nn.Linear(n_hidden, n_output)
+        self.layer1  = torch.nn.Linear(input_size, hidden_size)
+        self.predict = torch.nn.Linear(hidden_size, output_size)
     
     # feed forward
     def forward(self, x):
-        x = F.relu(self.hidden(x))
+        x = F.relu(self.layer1(x))
         x = self.predict(x)
         return x
 
 # neural network model
 class Stepper(torch.nn.Module):
     # nn layers shape
-    def __init__(self, n_feature, n_hidden, n_hidden2, n_output):
+    def __init__(self, input_size, output_size, hidden_size=516):
         super(Stepper, self).__init__()
-        self.hidden   = torch.nn.Linear(n_feature, n_hidden)
-        self.hidden2  = torch.nn.Linear(n_hidden, n_hidden2)
-        self.predict  = torch.nn.Linear(n_hidden2, n_output)
+        self.layer1  = torch.nn.Linear(input_size, hidden_size)
+        self.layer2  = torch.nn.Linear(hidden_size, hidden_size)
+        self.predict = torch.nn.Linear(hidden_size, output_size)
 
     # feed forward
     def forward(self, x):
-        x = F.relu(self.hidden(x)) 
-        x = F.relu(self.hidden2(x))
+        x = F.relu(self.layer1(x)) 
+        x = F.relu(self.layer2(x))
         x = self.predict(x)
         return x
 
 # neural network model
 class Projector(torch.nn.Module):
     # nn layers shape
-    def __init__(self, n_feature, n_hidden, n_hidden2, n_hidden3, n_hidden4, n_output):
+    def __init__(self, input_size, output_size, hidden_size=516):
         super(Projector, self).__init__()
-        self.hidden  = torch.nn.Linear(n_feature, n_hidden)  
-        self.hidden2 = torch.nn.Linear(n_hidden, n_hidden2) 
-        self.hidden3 = torch.nn.Linear(n_hidden2, n_hidden3)
-        self.hidden4 = torch.nn.Linear(n_hidden3, n_hidden4)
-        self.predict = torch.nn.Linear(n_hidden4, n_output)
+        self.layer1  = torch.nn.Linear(input_size, hidden_size)  
+        self.layer2 = torch.nn.Linear(hidden_size, hidden_size) 
+        self.layer3 = torch.nn.Linear(hidden_size, hidden_size)
+        self.layer4 = torch.nn.Linear(hidden_size, hidden_size)
+        self.predict = torch.nn.Linear(hidden_size, output_size)
 
     # feed forward
     def forward(self, x):
-        x = F.relu(self.hidden(x)) 
-        x = F.relu(self.hidden2(x))
-        x = F.relu(self.hidden3(x))
-        x = F.relu(self.hidden4(x))
+        x = F.relu(self.layer1(x)) 
+        x = F.relu(self.layer2(x))
+        x = F.relu(self.layer3(x))
+        x = F.relu(self.layer4(x))
         x = self.predict(x)
         return x
 
 # override tensor dataset to get a sequence length
 class CustomDataset(Dataset):
-    def __init__(self, datas, window=1):
+    def __init__(self, datas, indices, window=1):
         self.datas = datas
         self.window = window
-        self.selectedClip = 0
         self.samples = []
-        self.fullBatch = []
 
-        # clips length
-        for i in range(len(self.datas[0])):
-            # frames length
-            for j in range(self.datas[0][i].size(0) - self.window + 1):
-                self.samples.append((i, j))
-            
+        # Build batches respecting window size
+        for i in range(len(indices)):
+            for j in range(indices[i] - window):
+                self.samples.append(np.arange(j, j + window))
+
     def __getitem__(self, index):
         output = ()
-        index = self.fullBatch.pop()
-
+        index = self.samples[np.random.randint(0, len(self.samples))]
+        
         for i in range(len(self.datas)):
-            output = output + (self.datas[i][index[0]][index[1]:index[1]+self.window],)
+            output = output + (self.datas[i][index],)
 
         return output
 
     def __len__(self):
-        self.fullBatch = self.samples.copy()
-
-        random.shuffle(self.fullBatch)
-        return len(self.fullBatch)
+        return self.datas[0].size(0)
 
 # dataloader settings for training
 def TrainSettings(model):
-    optimizer = optim.RAdam(model.parameters(), lr=0.001)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1000, gamma=0.99)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, amsgrad=True, weight_decay=0.001)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
 
     return optimizer, scheduler

@@ -13,180 +13,231 @@ start_time = time.time()
 
 # checking if GPU is available
 print(torch.cuda.get_device_name(0)) 
-device = torch.device("cuda")
+device = torch.device("cpu")
 
 # load data
-xData = CustomFunctions.LoadData("XData", True)
-yData = CustomFunctions.LoadData("YData", True)
+X = CustomFunctions.LoadData("XData")['data']
+Y = CustomFunctions.LoadData("YData")['data']
+indices = CustomFunctions.LoadData("YData")['indices']
 
-hierarchy = CustomFunctions.LoadData("HierarchyData")
+hierarchy = CustomFunctions.LoadData("HierarchyData")['data']
 hierarchy = [int(hierarchy[i][0]) for i in range(len(hierarchy))]
 
-# list of tensors
-xTensor = []
-yTensor = []
-qTensor = []
-pTensor = []
-yFinal = []
-qFinal = []
-pNorm  = []
-
-for i in range(len(xData)):
-    xTensor.append(torch.tensor(xData[i], dtype=torch.float).to(device))
-    yTensor.append(torch.tensor(yData[i], dtype=torch.float).to(device))
+# To tensor
+X = torch.as_tensor(X, dtype=torch.float).to(device)
+Y = torch.as_tensor(Y, dtype=torch.float).to(device)
 
 # compute forward kinematics
-qTensor = CustomFunctions.ForwardKinematics(yTensor, hierarchy)
+Q = CustomFunctions.Quat_ForwardKinematics(Y, hierarchy)
 
-# calculate the rotation matrix
-for i in range(len(yTensor)):
-    yInfo = torch.empty(yTensor[i].size(0), 0).to(device)
-    qInfo = torch.empty(qTensor[i].size(0), 0).to(device)
+# convert to rotation/two-column matrix
+Yxfm = torch.empty((Y.shape[0], 0)).to(device)
+Ytxy = torch.empty((Y.shape[0], 0)).to(device)
 
-    for j in range(0, yTensor[i].size(1), 13):
-        yInfo = torch.cat((yInfo, yTensor[i][:,j:j+3], CustomFunctions.quaternion_rotation_matrix(yTensor[i][:,j+3:j+7]), yTensor[i][:,j+7:j+13]), dim=1)
-        qInfo = torch.cat((qInfo, qTensor[i][:,j:j+3], CustomFunctions.quaternion_rotation_matrix(qTensor[i][:,j+3:j+7]), qTensor[i][:,j+7:j+13]), dim=1)
+Qxfm = torch.empty((Q.shape[0], 0)).to(device)
+Qtxy = torch.empty((Q.shape[0], 0)).to(device)
 
-    yFinal.append(yInfo)
-    qFinal.append(qInfo)
+Yrtd = torch.empty((Y.shape[0], 0)).to(device)
+Qrtd = torch.empty((Q.shape[0], 0)).to(device)
 
-for i in range(len(yData)):
-    pTensor.append(torch.cat((yFinal[i], qFinal[i]), dim=1))
+for i in range(0, Y.size(1), 13):
+    Yxfm = torch.cat((Yxfm, Y[:,i:i+3], CustomFunctions.to_xform(Y[:,i+3:i+7]), Y[:,i+7:i+13]), dim=-1)
+    Qxfm = torch.cat((Qxfm, Q[:,i:i+3], CustomFunctions.to_xform(Q[:,i+3:i+7]), Q[:,i+7:i+13]), dim=-1)
+    Ytxy = torch.cat((Ytxy, Y[:,i:i+3], CustomFunctions.to_xform_xy(Y[:,i+3:i+7]), Y[:,i+7:i+13]), dim=-1)
+    Qtxy = torch.cat((Qtxy, Q[:,i:i+3], CustomFunctions.to_xform_xy(Q[:,i+3:i+7]), Q[:,i+7:i+13]), dim=-1)
 
-xTensor = CustomFunctions.StandardizeData(xTensor, dim=0)
-pNorm   = CustomFunctions.StandardizeData(pTensor, dim=0)
+# # Recompute forward kinematics
+# Yxfm2 = torch.empty((Y.shape[0], 0)).to(device)
+
+# for i in range(0, Ytxy.size(1), 15):
+#     Yxfm2 = torch.cat((Yxfm2, Ytxy[...,i:i+3], CustomFunctions.from_xy(Ytxy[...,i+3:i+9].reshape(Ytxy.size(0), 3, 2)), Ytxy[...,i+9:i+15]), dim=-1)
+
+# Qxfm2 = CustomFunctions.Xform_ForwardKinematics(Yxfm2, hierarchy)
+
+# means and stds
+compressor_mean = torch.cat((Ytxy, Qtxy), dim=1).mean(dim=0)
+compressor_std = torch.cat((Ytxy, Qtxy), dim=1).std(dim=0) + 0.001
+
+decompressor_mean = Ytxy.mean(dim=0)
+decompressor_std = Ytxy.std(dim=0) + 0.001
 
 # relevant dataset indexes
-lTransforms = []
-lVelocities = []
-sTransforms = []
-sVelocities = []
+pos = []
+rot = []
+vel = []
+ang = []
+posXfm = []
+rotXfm = []
+velXfm = []
+angXfm = []
 
-[lTransforms.extend(list(range(i + 0, i + 7)))  for i in range(0, yTensor[0].size(1), 13)]
-[lVelocities.extend(list(range(i + 7, i + 13))) for i in range(0, yTensor[0].size(1), 13)]
-[sTransforms.extend(list(range(i + 0, i + 7)))  for i in range(yTensor[0].size(1), pTensor[0].size(1), 13)]
-[sVelocities.extend(list(range(i + 7, i + 13))) for i in range(yTensor[0].size(1), pTensor[0].size(1), 13)]
+[pos.extend(list(range(i + 0, i + 3)))  for i in range(0, Ytxy.size(1), 15)]
+[rot.extend(list(range(i + 3, i + 9)))  for i in range(0, Ytxy.size(1), 15)]
+[vel.extend(list(range(i + 9, i + 12)))  for i in range(0, Ytxy.size(1), 15)]
+[ang.extend(list(range(i + 12, i + 15)))  for i in range(0, Ytxy.size(1), 15)]
+[posXfm.extend(list(range(i + 0, i + 3)))  for i in range(18, Qxfm.size(1), 18)]
+[rotXfm.extend(list(range(i + 3, i + 12)))  for i in range(18, Qxfm.size(1), 18)]
+[velXfm.extend(list(range(i + 12, i + 15)))  for i in range(18, Qxfm.size(1), 18)]
+[angXfm.extend(list(range(i + 15, i + 18)))  for i in range(18, Qxfm.size(1), 18)]
 
-# define nn params
-compressor   = NNModels.Compressor(n_feature=yTensor[0].size(1) * 2, n_hidden=512, n_hidden2=512, n_hidden3=512, n_output=32).to(device)
-decompressor = NNModels.Decompressor(n_feature=24+32, n_hidden=512, n_output=yTensor[0].size(1)).to(device)
+# Training settings
+nfeatures = X.size(1)
+nlatent = 32
+epochs = 1000
+batchsize=32
+window=2
+logFreq = 50
+dt = 1.0 / 60.0
 
-# dataloader settings
-train = NNModels.CustomDataset((xTensor, yFinal, qFinal, pNorm), window=2)
-train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
+compressor   = NNModels.Compressor(Ytxy.size(1) * 2, nlatent).to(device)
+decompressor = NNModels.Decompressor(nfeatures + nlatent, Ytxy.size(1)).to(device)
+
+# Dataloader settings
+# train = NNModels.CustomDataset(datas=(X, Ytxy, Qtxy, Qxfm), indices=indices, window=2)
+# train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
 c_optimizer, c_scheduler = NNModels.TrainSettings(compressor)
 d_optimizer, d_scheduler = NNModels.TrainSettings(decompressor)
 
-# training settings
-epochs = 200
-logFreq = 10
+# Build batches respecting window size
+samples = []
+for i in range(len(indices)):
+    for j in range(indices[i] - window):
+        samples.append(np.arange(j, j + window))
+samples = torch.as_tensor(np.array(samples))
 
-# init tensorboard
+# Init tensorboard
 writer = SummaryWriter()
 
 # train the network. range = epochs
 for t in range(epochs + 1):
-    epochLoss = 0.0
-    lreg = 0.0
-    sreg = 0.0
-    vreg = 0.0
-    lloc = 0.0
-    lvel = 0.0
-    lchr = 0.0
-    cvel = 0.0
-
     epoch_time = time.time()
 
     # batch
-    for batch_idx, (x, y, q, p) in enumerate(train_loader):
+    batch = samples[torch.randint(0, len(samples), size=[batchsize])]
 
-        x.to(device), y.to(device), q.to(device), p.to(device)
+    # (seq. length, batch size, features) <- (batch size, seq. length, features)
+    Xgnd = X[batch].transpose(0, 1)
+    Ygnd = Ytxy[batch].transpose(0, 1)
+    Qgnd = Qtxy[batch].transpose(0, 1)
+    Qgnd_xfm = Qxfm[batch].transpose(0, 1)
+    
+    # Generate latent variables Z
+    Zgnd = compressor((torch.cat((Ygnd, Qgnd), dim=-1) - compressor_mean) / compressor_std)
 
-        # (seq. length, batch size, features) <- (batch size, seq. length, features)
-        x = torch.transpose(x, 0, 1)
-        y = torch.transpose(y, 0, 1)
-        q = torch.transpose(q, 0, 1)
-        p = torch.transpose(p, 0, 1)
+    # Reconstruct pose Y
+    Ytil = decompressor(torch.cat((Xgnd, Zgnd), dim=-1)) * decompressor_std + decompressor_mean
 
-        # generate latent variables Z
-        zPred = compressor(p)
+    # Recompute forward kinematics
+    Ytil_xfm = torch.empty((Ytil.size(0), Ytil.size(1), 0)).to(device)
 
-        # reconstruct pose Y
-        f = torch.cat((x, zPred), dim=2)
-        yPred = decompressor(f)
+    for i in range(0, Ytil.size(2), 15):
+        Ytil_xfm = torch.cat((Ytil_xfm, Ytil[...,i:i+3], CustomFunctions.from_xy(Ytil[...,i+3:i+9].reshape(Ytil.size(0), Ytil.size(1), 3, 2)), Ytil[...,i+9:i+15]), dim=-1)
 
-        # recompute forward kinematics
-        qPred = torch.stack(CustomFunctions.ForwardKinematics(yPred, hierarchy), dim=0)
-        
-        # compute latent regularization losses
-        loss_lreg = 0.10000 * torch.nn.MSELoss()(zPred[:,:,0:10], torch.zeros_like(zPred[:,:,0:10]))
-        loss_sreg = 0.00000 * torch.nn.L1Loss() (zPred[:,:,10:20], torch.zeros_like(zPred[:,:,10:20]))
-        loss_vreg = 0.00000 * torch.nn.L1Loss() ((zPred[1,:,20:32] - zPred[0,:,20:32]) / 0.017, torch.zeros_like(zPred[0,:,20:32]))
+    Qtil_xfm = CustomFunctions.Xform_ForwardKinematics(Ytil_xfm, hierarchy)
 
-        # local & character space losses
-        loss_loc  = 6.00000 * torch.nn.L1Loss()(yPred[:,:,lTransforms], y[:,:,lTransforms])
-        loss_chr  = 1.00000 * torch.nn.L1Loss()(qPred[:,:,lTransforms], q[:,:,lTransforms])
+    # Compute deltas
+    Ygnd_dlt = (Ygnd[1] - Ygnd[0]) / dt
+    Ytil_dlt = (Ytil[1] - Ytil[0]) / dt
+    
+    Qgnd_dlt = (Qgnd_xfm[1] - Qgnd_xfm[0]) / dt
+    Qtil_dlt = (Qtil_xfm[1] - Qtil_xfm[0]) / dt
 
-        # local & character space velocity losses
-        loss_lvel = 0.1 * torch.nn.L1Loss()(yPred[1,:,7:13] - yPred[0,:,7:13] / 0.017, y[1,:,7:13] - y[0,:,7:13] / 0.017)
-        loss_cvel = 0.1 * torch.nn.L1Loss()(qPred[1,:,7:13] - qPred[0,:,7:13] / 0.017, q[1,:,7:13] - q[0,:,7:13] / 0.017)
+    Zgnd_dvel = (Zgnd[1] - Zgnd[0]) / dt
 
-        loss = loss_lreg + loss_sreg + loss_vreg + loss_loc + loss_chr + loss_lvel + loss_cvel
+    # Latent regularization losses
+    loss_lreg = torch.mean(0.10 * torch.square(Zgnd))
+    loss_sreg = torch.mean(0.10 * torch.abs(Zgnd))
+    loss_vreg = torch.mean(0.01 * torch.abs(Zgnd_dvel))
 
-        # clear gradients for next train
-        c_optimizer.zero_grad()
-        d_optimizer.zero_grad()
+    # Local & character space losses
+    loss_loc_pos  = torch.mean(10000 * torch.abs(Ygnd[:,:,pos] - Ytil[:,:,pos]))
+    loss_loc_txy  = torch.mean(7000 * torch.abs(Ygnd[:,:,rot] - Ytil[:,:,rot]))
+    loss_loc_vel  = torch.mean(7000 * torch.abs(Ygnd[:,:,vel] - Ytil[:,:,vel]))
+    loss_loc_ang  = torch.mean(1.25 * torch.abs(Ygnd[:,:,ang] - Ytil[:,:,ang]))
 
-        # backpropagation, compute gradients
-        loss.backward()
+    loss_chr_pos  = torch.mean(10000 * torch.abs(Qgnd_xfm[:,:,posXfm] - Qtil_xfm[:,:,posXfm]))
+    loss_chr_xfm  = torch.mean(10000 * torch.abs(Qgnd_xfm[:,:,rotXfm] - Qtil_xfm[:,:,rotXfm]))
+    loss_chr_vel  = torch.mean(0.35 * torch.abs(Qgnd_xfm[:,:,velXfm] - Qtil_xfm[:,:,velXfm]))
+    loss_chr_ang  = torch.mean(0.35 * torch.abs(Qgnd_xfm[:,:,angXfm] - Qtil_xfm[:,:,angXfm]))
 
-        # apply gradients
-        c_optimizer.step()
-        d_optimizer.step()
+    # local & character space velocity losses
+    loss_lvel_pos = torch.mean(1000 * torch.abs(Ygnd_dlt[:,pos] - Ytil_dlt[:,pos]))
+    loss_lvel_rot = torch.mean(175 * torch.abs(Ygnd_dlt[:,rot] - Ytil_dlt[:,rot]))
 
-        # step learning rate schedule
+    loss_cvel_pos = torch.mean(200. * torch.abs(Qgnd_dlt[:,posXfm] - Qtil_dlt[:,posXfm]))
+    loss_cvel_rot = torch.mean(75.0 * torch.abs(Qgnd_dlt[:,rotXfm] - Qtil_dlt[:,rotXfm]))
+
+    loss = (
+    # loss_lreg + loss_sreg + loss_vreg + 
+    loss_loc_pos + loss_loc_txy + loss_loc_vel + loss_loc_ang +
+    loss_chr_pos + loss_chr_xfm + loss_chr_vel + loss_chr_ang +
+    loss_lvel_pos + loss_lvel_rot + loss_cvel_pos + loss_cvel_rot
+    )
+
+    # clear gradients for next train
+    c_optimizer.zero_grad()
+    d_optimizer.zero_grad()
+
+    # backpropagation, compute gradients
+    loss.backward()
+
+    # apply gradients
+    c_optimizer.step()
+    d_optimizer.step()
+
+    if t % 1000 == 0:
         c_scheduler.step()
         d_scheduler.step()
 
-        # log loss value
-        epochLoss += loss.item()
-        lreg += loss_lreg.item()
-        sreg += loss_sreg.item()
-        vreg += loss_vreg.item()
-        lloc += loss_loc.item()
-        lchr += loss_chr.item()
-        lvel += loss_lvel.item()
-        cvel += loss_cvel.item()
+    writer.add_scalar('decompressor/loss', loss.item(), t)
+    
+    writer.add_scalars('decompressor/loss_terms', {
+        'lreg': loss_lreg.item(),
+        'sreg': loss_sreg.item(),
+        'vreg': loss_vreg.item(),
+        'loc_pos': loss_loc_pos.item(),
+        'loc_txy': loss_loc_txy.item(),
+        'loc_vel': loss_loc_vel.item(),
+        'loc_ang': loss_loc_ang.item(),
+        'chr_pos': loss_chr_pos.item(),
+        'chr_xfm': loss_chr_xfm.item(),
+        'chr_vel': loss_chr_vel.item(),
+        'chr_ang': loss_chr_ang.item(),
+        'lvel_pos': loss_lvel_pos.item(),
+        'lvel_rot': loss_lvel_rot.item(),
+        'cvel_pos': loss_cvel_pos.item(),
+        'cvel_rot': loss_cvel_rot.item(),
+    }, t)
+    
+    writer.add_scalars('decompressor/latent', {
+        'mean': Zgnd.mean().item(),
+        'std': Zgnd.std().item(),
+    }, t)
 
     # just printing where training is
     if t % logFreq == 0:
-        print("Epoch:", t, "\tLoss:", epochLoss, "\tRuntime:", (time.time() - epoch_time) * logFreq / 60, "minutes")
-        print(lreg, sreg, vreg, lloc, lchr, lvel, cvel)
-    # log loss in tensorboard
-    writer.add_scalar('Decompressor Loss', epochLoss, t)
+        print("Epoch:", t, "\tLoss:", loss.item(), "\tRuntime:", (time.time() - epoch_time) * logFreq / 60, "minutes")
 
 # save character space transforms (Q)
 with open('database/QData.txt', "w+") as f:
-    for i in range(len(pTensor)):
-        for j in range(pTensor[i].size(0)):
-            np.savetxt(f, pTensor[i][j].cpu().detach().numpy()[None], delimiter=" ")
+    for i in range(Qtxy.size(0)):
+        np.savetxt(f, Qtxy[i].cpu().detach().numpy()[None], delimiter=" ")
 
-        np.savetxt(f, [''], fmt='%s')
+        if (i + 1) in indices:
+            np.savetxt(f, [''], fmt='%s')
 
 # save latent variables (Z)
 with open('database/ZData.txt', "w+") as f:
-    for i in range(len(yTensor)):
-        # p = CustomFunctions.NormalizeData(torch.cat((yTensor[i], qTensor[i]), dim=1), dim=1)
+    for i in range(Ytxy.size(0)):
+        Zgnd = compressor((torch.cat((Ytxy[i], Qtxy[i]), dim=-1) - compressor_mean) / compressor_std)
+        np.savetxt(f, Zgnd.cpu().detach().numpy()[None], delimiter=" ")
         
-        for j in range(pNorm[i].size(0)):
-            zPred = compressor(pNorm[i][j])
-            np.savetxt(f, zPred.cpu().detach().numpy()[None], delimiter=" ")
-
-        np.savetxt(f, [''], fmt='%s')
+        if (i + 1) in indices:
+            np.savetxt(f, [''], fmt='%s')
 
 # export compressor model
 torch.onnx.export(
-    compressor, torch.rand(1, 1, yTensor[0].size(1) * 2, device=device), 
+    compressor, torch.rand(1, 1, Ytxy.size(1) * 2, device=device), 
     "onnx/compressor.onnx", export_params=True,
     opset_version=9, do_constant_folding=True,
     input_names = ['x'], output_names = ['z']
@@ -194,7 +245,7 @@ torch.onnx.export(
 
 # export decompressor model
 torch.onnx.export(
-    decompressor, torch.rand(1, 1, 56, device=device), 
+    decompressor, torch.rand(1, 1, nfeatures + nlatent, device=device), 
     "onnx/decompressor.onnx", export_params=True,
     opset_version=9, do_constant_folding=True,
     input_names = ['x'], output_names = ['y']
