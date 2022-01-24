@@ -11,7 +11,7 @@ device = torch.device("cuda")
 # neural network model
 class Compressor(torch.nn.Module):
     # nn layers shape
-    def __init__(self, input_size, output_size, hidden_size=516):
+    def __init__(self, input_size, output_size, hidden_size=512):
         super(Compressor, self).__init__()
         self.layer1 = torch.nn.Linear(input_size, hidden_size) 
         self.layer2 = torch.nn.Linear(hidden_size, hidden_size)
@@ -29,7 +29,7 @@ class Compressor(torch.nn.Module):
 # neural network model
 class Decompressor(torch.nn.Module):
     # nn layers shape
-    def __init__(self, input_size, output_size, hidden_size=516):
+    def __init__(self, input_size, output_size, hidden_size=512):
         super(Decompressor, self).__init__()
         self.layer1  = torch.nn.Linear(input_size, hidden_size)
         self.predict = torch.nn.Linear(hidden_size, output_size)
@@ -43,7 +43,7 @@ class Decompressor(torch.nn.Module):
 # neural network model
 class Stepper(torch.nn.Module):
     # nn layers shape
-    def __init__(self, input_size, hidden_size=516):
+    def __init__(self, input_size, hidden_size=512):
         super(Stepper, self).__init__()
         self.layer1  = torch.nn.Linear(input_size, hidden_size)
         self.layer2  = torch.nn.Linear(hidden_size, hidden_size)
@@ -59,12 +59,12 @@ class Stepper(torch.nn.Module):
 # neural network model
 class Projector(torch.nn.Module):
     # nn layers shape
-    def __init__(self, input_size, output_size, hidden_size=516):
+    def __init__(self, input_size, output_size, hidden_size=512):
         super(Projector, self).__init__()
         self.layer1  = torch.nn.Linear(input_size, hidden_size)  
-        self.layer2 = torch.nn.Linear(hidden_size, hidden_size) 
-        self.layer3 = torch.nn.Linear(hidden_size, hidden_size)
-        self.layer4 = torch.nn.Linear(hidden_size, hidden_size)
+        self.layer2  = torch.nn.Linear(hidden_size, hidden_size) 
+        self.layer3  = torch.nn.Linear(hidden_size, hidden_size)
+        self.layer4  = torch.nn.Linear(hidden_size, hidden_size)
         self.predict = torch.nn.Linear(hidden_size, output_size)
 
     # feed forward

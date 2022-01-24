@@ -26,9 +26,13 @@ Z = torch.as_tensor(Z, dtype=torch.float).to(device)
 
 dt = 1.0 / 60.0
 
-# means and stds
+# Scales
+X_scale = X.std()
+Z_scale = Z.std()
+
+# Means and stds
 stepper_mean_in = torch.cat((X, Z), dim=-1).mean(dim=0)
-stepper_std_in  = torch.cat((X, Z), dim=-1).std(dim=0) + 0.001
+stepper_std_in  = torch.cat((X_scale.repeat(24), Z_scale.repeat(32)), dim=0)
 
 Xvel = (X[indices[0]+1:indices[1]] - X[indices[0]:indices[1]-1]) / dt
 
@@ -46,10 +50,10 @@ stepper_std_out  = torch.cat((Xvel, Zvel), dim=-1).std(dim=0) + 0.001
 # Training settings
 nfeatures = X.size(1)
 nlatent = 32
-epochs = 1000
+epochs = 100000
 batchsize=32
 window=20
-logFreq = 50
+logFreq = 500
 dt = 1.0 / 60.0
 
 stepper = NNModels.Stepper(nfeatures + nlatent).to(device)
@@ -103,7 +107,7 @@ for t in range(epochs + 1):
     loss_xval = torch.mean(30. * torch.abs(Xgnd - Xtil))
     loss_zval = torch.mean(7.0 * torch.abs(Zgnd - Ztil))
     loss_xvel = torch.mean(1.2 * torch.abs(Xgnd_vel - Xtil_vel))
-    loss_zvel = torch.mean(0.3 * torch.abs(Zgnd_vel - Ztil_vel))
+    loss_zvel = torch.mean(0.1 * torch.abs(Zgnd_vel - Ztil_vel))
 
     loss = loss_xval + loss_zval + loss_xvel + loss_zvel
 

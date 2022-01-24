@@ -31,35 +31,20 @@ Y = torch.as_tensor(Y, dtype=torch.float).to(device)
 Q = CustomFunctions.Quat_ForwardKinematics(Y, hierarchy)
 
 # convert to rotation/two-column matrix
-Yxfm = torch.empty((Y.shape[0], 0)).to(device)
-Ytxy = torch.empty((Y.shape[0], 0)).to(device)
+Yxfm = torch.empty((Y.shape[0], 0), dtype=torch.float).to(device)
+Ytxy = torch.empty((Y.shape[0], 0), dtype=torch.float).to(device)
 
-Qxfm = torch.empty((Q.shape[0], 0)).to(device)
-Qtxy = torch.empty((Q.shape[0], 0)).to(device)
+Qxfm = torch.empty((Q.shape[0], 0), dtype=torch.float).to(device)
+Qtxy = torch.empty((Q.shape[0], 0), dtype=torch.float).to(device)
 
-Yrtd = torch.empty((Y.shape[0], 0)).to(device)
-Qrtd = torch.empty((Q.shape[0], 0)).to(device)
+Yrtd = torch.empty((Y.shape[0], 0), dtype=torch.float).to(device)
+Qrtd = torch.empty((Q.shape[0], 0), dtype=torch.float).to(device)
 
 for i in range(0, Y.size(1), 13):
     Yxfm = torch.cat((Yxfm, Y[:,i:i+3], CustomFunctions.to_xform(Y[:,i+3:i+7]), Y[:,i+7:i+13]), dim=-1)
     Qxfm = torch.cat((Qxfm, Q[:,i:i+3], CustomFunctions.to_xform(Q[:,i+3:i+7]), Q[:,i+7:i+13]), dim=-1)
     Ytxy = torch.cat((Ytxy, Y[:,i:i+3], CustomFunctions.to_xform_xy(Y[:,i+3:i+7]), Y[:,i+7:i+13]), dim=-1)
     Qtxy = torch.cat((Qtxy, Q[:,i:i+3], CustomFunctions.to_xform_xy(Q[:,i+3:i+7]), Q[:,i+7:i+13]), dim=-1)
-
-# # Recompute forward kinematics
-# Yxfm2 = torch.empty((Y.shape[0], 0)).to(device)
-
-# for i in range(0, Ytxy.size(1), 15):
-#     Yxfm2 = torch.cat((Yxfm2, Ytxy[...,i:i+3], CustomFunctions.from_xy(Ytxy[...,i+3:i+9].reshape(Ytxy.size(0), 3, 2)), Ytxy[...,i+9:i+15]), dim=-1)
-
-# Qxfm2 = CustomFunctions.Xform_ForwardKinematics(Yxfm2, hierarchy)
-
-# means and stds
-compressor_mean = torch.cat((Ytxy, Qtxy), dim=1).mean(dim=0)
-compressor_std = torch.cat((Ytxy, Qtxy), dim=1).std(dim=0) + 0.001
-
-decompressor_mean = Ytxy.mean(dim=0)
-decompressor_std = Ytxy.std(dim=0) + 0.001
 
 # relevant dataset indexes
 pos = []
@@ -80,13 +65,40 @@ angXfm = []
 [velXfm.extend(list(range(i + 12, i + 15)))  for i in range(18, Qxfm.size(1), 18)]
 [angXfm.extend(list(range(i + 15, i + 18)))  for i in range(18, Qxfm.size(1), 18)]
 
+# scales
+Ypos_scale = Ytxy[:,pos].std()
+Ytxy_scale = Ytxy[:,rot].std()
+Yvel_scale = Ytxy[:,vel].std()
+Yang_scale = Ytxy[:,ang].std()
+
+Qpos_scale = Qtxy[:,pos].std()
+Qtxy_scale = Qtxy[:,rot].std()
+Qvel_scale = Qtxy[:,vel].std()
+Qang_scale = Qtxy[:,ang].std()
+
+# means and stds
+compressor_mean = torch.cat((Ytxy, Qtxy), dim=1).mean(dim=0)
+compressor_std = torch.empty((0))
+
+for i in range(0, Ytxy.size(1), 15):
+    compressor_std = torch.cat((compressor_std, Ypos_scale.repeat(3), Ytxy_scale.repeat(6), Yvel_scale.repeat(3), Yang_scale.repeat(3)), dim=0)
+
+for i in range(0, Qtxy.size(1), 15):
+    compressor_std = torch.cat((compressor_std, Qpos_scale.repeat(3), Qtxy_scale.repeat(6), Qvel_scale.repeat(3), Qang_scale.repeat(3)), dim=0)
+
+torch.set_printoptions(profile="full", precision=8)
+print(Ytxy[:,pos].sum(), Ypos_scale, Ytxy_scale, Yvel_scale, Yang_scale)
+
+decompressor_mean = Ytxy.mean(dim=0)
+decompressor_std = Ytxy.std(dim=0) + 0.001
+
 # Training settings
 nfeatures = X.size(1)
 nlatent = 32
-epochs = 1000
+epochs = -1
 batchsize=32
 window=2
-logFreq = 50
+logFreq = 500
 dt = 1.0 / 60.0
 
 compressor   = NNModels.Compressor(Ytxy.size(1) * 2, nlatent).to(device)
@@ -145,9 +157,9 @@ for t in range(epochs + 1):
     Zgnd_dvel = (Zgnd[1] - Zgnd[0]) / dt
 
     # Latent regularization losses
-    loss_lreg = torch.mean(0.10 * torch.square(Zgnd))
-    loss_sreg = torch.mean(0.10 * torch.abs(Zgnd))
-    loss_vreg = torch.mean(0.01 * torch.abs(Zgnd_dvel))
+    loss_lreg = torch.mean(100. * torch.square(Zgnd))
+    loss_sreg = torch.mean(100. * torch.abs(Zgnd))
+    loss_vreg = torch.mean(10.0 * torch.abs(Zgnd_dvel))
 
     # Local & character space losses
     loss_loc_pos  = torch.mean(10000 * torch.abs(Ygnd[:,:,pos] - Ytil[:,:,pos]))
@@ -219,8 +231,16 @@ for t in range(epochs + 1):
     if t % logFreq == 0:
         print("Epoch:", t, "\tLoss:", loss.item(), "\tRuntime:", (time.time() - epoch_time) * logFreq / 60, "minutes")
 
-# save character space transforms (Q)
-with open('database/QData.txt', "w+") as f:
+# save character space transforms (Ytxy)
+with open('database/YtxyData.txt', "w+") as f:
+    for i in range(Ytxy.size(0)):
+        np.savetxt(f, Ytxy[i].cpu().detach().numpy()[None], delimiter=" ")
+
+        if (i + 1) in indices:
+            np.savetxt(f, [''], fmt='%s')
+
+# save character space transforms (Qtxy)
+with open('database/QtxyData.txt', "w+") as f:
     for i in range(Qtxy.size(0)):
         np.savetxt(f, Qtxy[i].cpu().detach().numpy()[None], delimiter=" ")
 

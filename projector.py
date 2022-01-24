@@ -7,6 +7,7 @@ import torch
 import NNModels
 import CustomFunctions
 import numpy as np
+from sklearn.neighbors import BallTree
 
 # runtime start
 start_time = time.time()
@@ -15,107 +16,104 @@ start_time = time.time()
 print(torch.cuda.get_device_name(0))
 print()
 
-device = torch.device("cuda")
+device = torch.device("cpu")
 
-# define nn params
-model = NNModels.Projector(n_feature=24, n_hidden=512, n_hidden2=512, n_hidden3=512, n_hidden4=512, n_output=24+32).to(device)
+# Load data
+X = CustomFunctions.LoadData("XData")['data']
+Z = CustomFunctions.LoadData("ZData")['data']
 
-# load data
-xData = CustomFunctions.LoadData("XData", False)
-zData = CustomFunctions.LoadData("ZData", False)
+# To tensor
+X = torch.as_tensor(X, dtype=torch.float).to(device)
+Z = torch.as_tensor(Z, dtype=torch.float).to(device)
 
-# list of tensors
-xTensor = []
-zTensor = []
-combinedFeatures = []
+# means and stds
+projector_mean_in = X.mean(dim=0)
+projector_std_in  = X.std().repeat(X.size(1))
 
-xTensor = CustomFunctions.StandardizeData([torch.tensor(xData, dtype=torch.float).to(device)], dim=0)
-zTensor.append(torch.tensor(zData, dtype=torch.float).to(device))
-
-# combined features (x + z)
-combinedFeatures.append(torch.cat((xTensor[0], zTensor[0]), dim=1))
-
-# relevant dataset indexes
-xVal = [list(range(0, 9)) , list(range(12, 15)), list(range(18, 21))]
-xTrj = [list(range(0, 9))]
-xVal = sum(xVal, [])
-xTrj = sum(xTrj, [])
-
-# dataloader settings for training
-train = NNModels.Data.TensorDataset(xTensor[0], combinedFeatures[0])
-train_loader = NNModels.Data.DataLoader(train, shuffle=True, batch_size=32)
-optimizer, scheduler = NNModels.TrainSettings(model)
+projector_mean_out = torch.cat((X, Z), dim=-1).mean(dim=0)
+projector_std_out  = torch.cat((X, Z), dim=-1).std(dim=0) + 0.001
 
 # training settings
-epochs = 1000
+nframes = X.size(0)
+nfeatures = X.size(1)
+nlatent = 32
+epochs = 500000
+batchsize = 32
 logFreq = 500
+
+projector = NNModels.Projector(nfeatures, nfeatures + nlatent).to(device)
+
+# dataloader settings for training
+optimizer, scheduler = NNModels.TrainSettings(projector)
+
+# Fit acceleration structure for nearest neighbors search    
+tree = BallTree(X)
 
 # init tensorboard
 writer = SummaryWriter()
 
+X_noise_std = X.std(dim=0) + 1.0
+
 # train the network. range = epochs
 for t in range(epochs + 1):
-    epochLoss = 0.0
-    xval = 0.0
-    zval = 0.0
-    dist = 0.0
     epoch_time = time.time()
 
-    for batch_idx, (data, target) in enumerate(train_loader):
+    # Batch
+    batch = torch.randint(0, nframes, size=[batchsize])
 
-        data.to(device), target.to(device)
+    nsigma = np.random.uniform(size=[batchsize, 1]).astype(np.float32)
+    noise = np.random.normal(size=[batchsize, nfeatures]).astype(np.float32)
+    Xhat = X[batch] + X_noise_std * nsigma * noise
 
-        # generate gaussian noise
-        dataNoise = torch.zeros_like(data)
-        for i in range(data.size(0)):
-            dataNoise[i] = data[i] + (np.random.uniform(0.0, 1.0) * torch.randn_like(data[i]))
-            # dataNoise[i] = data[i] + (np.random.uniform(-1.0, 1.0) * torch.rand_like(data[i]))
-
-        # perform knn
-        knnIndices = []
-
-        for i in range(data.size(0)):
-            diff = torch.norm(xTensor[0] - dataNoise[i], dim=1, p=None)
-            knn = diff.topk(1, largest=False)
-            knnIndices.append(knn.indices.tolist()[0])
-        
-        xk          = torch.empty(data.size(0), 0).to(device)
-        newTargets  = torch.empty(data.size(0), 0).to(device)
-
-        xk          = torch.cat((xk, xTensor[0][knnIndices]), dim=1)
-        newTargets  = torch.cat((newTargets, combinedFeatures[0][knnIndices]), dim=1)
-
-        # feed forward
-        prediction = model(dataNoise)
-
-        # losses
-        loss_xval = 0.50 * torch.nn.L1Loss()(prediction[:,:24], newTargets[:,:24])  
-        loss_zval = 5.00 * torch.nn.L1Loss()(prediction[:,24:], newTargets[:,24:])  
-        loss_dist = 0.00 * torch.nn.L1Loss()(torch.nn.MSELoss()(prediction[:,:24], dataNoise), torch.nn.MSELoss()(xk, dataNoise))
-
-        loss = loss_xval + loss_zval + loss_dist
-
-        optimizer.zero_grad()   # clear gradients for next train
-        loss.backward()         # backpropagation, compute gradients
-        optimizer.step()        # apply gradients
-        scheduler.step()        # step learning rate schedule
-
-        # log loss value
-        epochLoss += loss.item()
-        xval += loss_xval.item()
-        zval += loss_zval.item()
-        dist += loss_dist.item()
+    # Find nearest
+    nearest = tree.query(Xhat, k=1, return_distance=False)[:,0]
     
+    Xgnd = torch.as_tensor(X[nearest])
+    Zgnd = torch.as_tensor(Z[nearest])
+    Xhat = torch.as_tensor(Xhat)
+    Dgnd = torch.sqrt(torch.sum(torch.square(Xhat - Xgnd), dim=-1))
+    
+    # Projector
+    pred = (projector((Xhat - projector_mean_in) / projector_std_in) *
+        projector_std_out + projector_mean_out)
+    
+    Xtil = pred[:,:nfeatures]
+    Ztil = pred[:,nfeatures:]
+    Dtil = torch.sqrt(torch.sum(torch.square(Xhat - Xtil), dim=-1))
+    
+    # Compute Losses
+    loss_xval = torch.mean(1.00 * torch.abs(Xgnd - Xtil))
+    loss_zval = torch.mean(0.15 * torch.abs(Zgnd - Ztil))
+    loss_dist = torch.mean(1.00 * torch.abs(Dgnd - Dtil))
+    
+    loss = loss_xval + loss_zval + loss_dist
+
+    optimizer.zero_grad()   # clear gradients for next train
+    loss.backward()         # backpropagation, compute gradients
+    optimizer.step()        # apply gradients
+    
+    # Step learning rate schedule
+    if t % 1000 == 0:
+        scheduler.step()
+
     # just printing where training is
     if t % logFreq == 0:
-        print("Epoch:", t, "\tLoss:", epochLoss, "\tRuntime:", (time.time() - epoch_time) * logFreq / 60, "minutes")
-        print(xval, zval, dist)
-    # log loss in tensorboard  
-    writer.add_scalar('Projector Loss', epochLoss, t)
+        print("Epoch:", t, "\tLoss:", loss.item(), "\tRuntime:", (time.time() - epoch_time) * logFreq / 60, "minutes")
+        torch.set_printoptions(profile="full", precision=8)
+        print(Xgnd[0,0], Xtil[0,0])
+
+    # log loss in tensorboard
+    writer.add_scalar('projector/loss', loss.item(), t)
+
+    writer.add_scalars('projector/loss_terms', {
+        'xval': loss_xval.item(),
+        'zval': loss_zval.item(),
+        'dist': loss_dist.item(),
+    }, t)
 
 # export the model
 torch.onnx.export(
-    model, torch.rand(1, 1, 24, device=device),
+    projector, torch.rand(1, 1, 24, device=device),
     "onnx/projector.onnx", export_params=True,
     opset_version=9, do_constant_folding=True,
     input_names = ['x'], output_names = ['y']
