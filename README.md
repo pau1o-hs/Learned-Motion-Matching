@@ -1,6 +1,6 @@
 # Learned Motion Matching (Work in progress)
 
-![LMM](https://user-images.githubusercontent.com/55563608/139554887-036a45a1-d88e-4fdb-a9d7-d6592f2738c9.gif)
+![LMM2](https://user-images.githubusercontent.com/55563608/150857265-d90b95f7-32fa-4613-a86c-dc3d4c73b397.gif)
 
 A neural-network-based generative model for character animation.
 
