@@ -50,7 +50,7 @@ stepper_std_out  = torch.cat((Xvel, Zvel), dim=-1).std(dim=0) + 0.001
 # Training settings
 nfeatures = X.size(1)
 nlatent = 32
-epochs = 100000
+epochs = 10000
 batchsize=32
 window=20
 logFreq = 500

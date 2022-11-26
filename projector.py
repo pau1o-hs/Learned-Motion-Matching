@@ -37,7 +37,7 @@ projector_std_out  = torch.cat((X, Z), dim=-1).std(dim=0) + 0.001
 nframes = X.size(0)
 nfeatures = X.size(1)
 nlatent = 32
-epochs = 500000
+epochs = 10000
 batchsize = 32
 logFreq = 500
 

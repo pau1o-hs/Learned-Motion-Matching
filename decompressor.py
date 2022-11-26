@@ -95,7 +95,7 @@ decompressor_std = Ytxy.std(dim=0) + 0.001
 # Training settings
 nfeatures = X.size(1)
 nlatent = 32
-epochs = -1
+epochs = 10000
 batchsize=32
 window=2
 logFreq = 500
