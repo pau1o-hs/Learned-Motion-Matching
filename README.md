@@ -76,8 +76,8 @@ HierarchyData.txt should be:
 <details>
 	<summary>---------</summary>
 
-- Clone this repository
-- Download the Unity sample project <a href="https://github.com/pau1o-hs/Learned-Motion-Matching/releases">here</a>.
+- Download the Source code from the latest tag <a href="https://github.com/pau1o-hs/Learned-Motion-Matching/tags">here</a>
+- Download the Unity sample project from the latest tag <a href="https://github.com/pau1o-hs/Learned-Motion-Matching/tags">here</a>.
 
 \* Install the **Barracuda** package inside of Unity’s Package Manager (Window->Package Manager)
 </details>
