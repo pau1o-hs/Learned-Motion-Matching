@@ -97,7 +97,7 @@ Currently, for use this system, the user needs to do the following steps:
 #### Pytorch
 5. Run decompressor.py, followed by stepper.py and projector.py (this last two can be run in parallel);
 6. Export the ONNX files generated in Pytorch environment to Unity's "/Assets/Motion Matching/ONNX " folder;
-7. Export the "QData.txt" file generated in Pytorch environment to Unity's "/Assets/Motion Matching/Database" folder;
+7. Export the "QData.txt" and "ZData.txt" file generated in Pytorch environment to Unity's "/Assets/Motion Matching/Database" folder;
 
 #### Unity
 8. Hit "Play" button and play.
