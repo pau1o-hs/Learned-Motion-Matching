@@ -1,4 +1,4 @@
-# Learned Motion Matching (Work in progress)
+# Learned Motion Matching
 
 ![LMM2](https://user-images.githubusercontent.com/55563608/150857265-d90b95f7-32fa-4613-a86c-dc3d4c73b397.gif)
 
