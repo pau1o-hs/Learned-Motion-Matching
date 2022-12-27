@@ -97,7 +97,7 @@ Currently, for use this system, the user needs to do the following steps:
 #### Pytorch
 5. Run decompressor.py, followed by stepper.py and projector.py (this last two can be run in parallel);
 6. Export the ONNX files generated in Pytorch environment to Unity's "/Assets/Motion Matching/ONNX " folder;
-7. Export the "QData.txt" and "ZData.txt" file generated in Pytorch environment to Unity's "/Assets/Motion Matching/Database" folder;
+7. Export the "QData.txt", "YtxyData.txt" and "ZData.txt" file generated in Pytorch environment to Unity's "/Assets/Motion Matching/Database" folder;
 
 #### Unity
 8. Hit "Play" button and play.
@@ -114,5 +114,6 @@ If you try to use it with your own character and animations, there are some deta
 <br>
        
 -  All your character's bones scales must be (1, 1, 1) to ForwardKinematics method works properly;
+-  Key all the bones (with Location, Quaternion and Scale info)
 -  Every animation clip must have at least 60 frames;
 -  The last 60 frames of every animation clip must have the same trajectory directions, because as input to the neural networks, are passed the **future** 60 frames.
