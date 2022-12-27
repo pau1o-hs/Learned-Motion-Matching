@@ -114,6 +114,6 @@ If you try to use it with your own character and animations, there are some deta
 <br>
        
 -  All your character's bones scales must be (1, 1, 1) to ForwardKinematics method works properly;
--  Key all the bones (with Location, Quaternion and Scale info)
+-  Key all the bones (with Location, Quaternion and Scale info);
 -  Every animation clip must have at least 60 frames;
 -  The last 60 frames of every animation clip must have the same trajectory directions, because as input to the neural networks, are passed the **future** 60 frames.
