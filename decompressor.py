@@ -126,12 +126,12 @@ for t in range(epochs + 1):
 
     # batch
     batch = samples[torch.randint(0, len(samples), size=[batchsize])]
-
+    # print(X[batch.long()])
     # (seq. length, batch size, features) <- (batch size, seq. length, features)
-    Xgnd = X[batch].transpose(0, 1)
-    Ygnd = Ytxy[batch].transpose(0, 1)
-    Qgnd = Qtxy[batch].transpose(0, 1)
-    Qgnd_xfm = Qxfm[batch].transpose(0, 1)
+    Xgnd = X[batch.long()].transpose(0, 1)
+    Ygnd = Ytxy[batch.long()].transpose(0, 1)
+    Qgnd = Qtxy[batch.long()].transpose(0, 1)
+    Qgnd_xfm = Qxfm[batch.long()].transpose(0, 1)
     
     # Generate latent variables Z
     Zgnd = compressor((torch.cat((Ygnd, Qgnd), dim=-1) - compressor_mean) / compressor_std)
