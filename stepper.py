@@ -78,8 +78,8 @@ for t in range(epochs + 1):
     # batch
     batch = samples[torch.randint(0, len(samples), size=[batchsize])]
 
-    Xgnd = X[batch]
-    Zgnd = Z[batch]
+    Xgnd = X[batch.long()]
+    Zgnd = Z[batch.long()]
 
     # Predict delta x and delta z over a window of s frames
     Xtil = [Xgnd[:,0]]
